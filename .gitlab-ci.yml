@@ -13,7 +13,7 @@ before_script:
 
 pre-commit:
   stage: review
-  image: python:3.6-buster
+  image: python:3.8-buster
   variables:
     PRE_COMMIT_HOME: ${CI_PROJECT_DIR}/.cache/pre-commit
   cache:
@@ -22,11 +22,6 @@ pre-commit:
   script:
     - pip install pre-commit
     - pre-commit run --all-files
-
-.test-py36:
-  needs: []
-  stage: test
-  image: python:3.6-buster
 
 .test-py37:
   needs: []
@@ -43,33 +38,27 @@ pre-commit:
   stage: test
   image: python:3.9-buster
 
-test-36-django31:
-  extends: .test-py36
-  script:
-    - tox -e py36-django31
-    - bash <(curl -s https://codecov.io/bash)
-
-test-37-django31:
+test-37-django32:
   extends: .test-py37
   script:
-    - tox -e py37-django31
+    - tox -e py37-django32
     - bash <(curl -s https://codecov.io/bash)
 
-test-38-django31:
+test-38-django32:
   extends: .test-py38
   script:
-    - tox -e py38-django31
+    - tox -e py38-django32
     - bash <(curl -s https://codecov.io/bash)
 
-test-39-django31:
+test-39-django32:
   extends: .test-py39
   script:
-    - tox -e py39-django31
+    - tox -e py39-django32
     - bash <(curl -s https://codecov.io/bash)
 
 deploy-pypi:
   stage: deploy
-  image: python:3.7-buster
+  image: python:3.8-buster
 
   before_script:
     - pip install twine wheel
@@ -81,11 +70,11 @@ deploy-pypi:
   only:
     - tags
 
-
 danger:
   needs: []
   stage: review
   before_script:
+    - gem install gitlab -v 4.18.0
     - gem install danger-gitlab
   script:
     - danger --fail-on-errors=true

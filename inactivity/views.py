@@ -1,5 +1,6 @@
 import datetime
 
+from django.contrib import messages
 from django.contrib.auth.decorators import login_required, permission_required
 from django.db.models import Q
 from django.http import HttpResponseNotFound, JsonResponse
@@ -10,7 +11,6 @@ from django.views.decorators.http import require_POST
 
 from .forms import CreateRequestForm
 from .models import LeaveOfAbsence
-from .utils import messages_plus
 
 
 @login_required
@@ -92,7 +92,7 @@ def approve_loa_request(request, request_id):
     req = LeaveOfAbsence.objects.get(pk=request_id)
     req.approver = request.user
     req.save()
-    messages_plus.success(
+    messages.success(
         request,
         format_html(
             _("Your have appproved %(user)s's leave request.")
@@ -119,7 +119,7 @@ def cancel_loa_request(request, request_id):
         ).first()
     if candidate:
         candidate.delete()
-        messages_plus.info(
+        messages.info(
             request,
             format_html(
                 _(
@@ -133,7 +133,7 @@ def cancel_loa_request(request, request_id):
         )
         return redirect("inactivity:index")
     else:
-        messages_plus.error(
+        messages.error(
             request,
             format_html(_("No leave of absence request matched your request.")),
         )
@@ -152,7 +152,7 @@ def create_loa_request(request):
         model = create_form.save(commit=False)
         model.user = request.user
         model.save()
-        messages_plus.info(
+        messages.info(
             request,
             format_html(
                 _(

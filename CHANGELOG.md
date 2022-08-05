@@ -11,6 +11,10 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Changed
 
+- Remove support for Python 3.6
+- Remove support for Django 3.1
+- Add support for Django 3.2
+
 ### Fixed
 
 - AA3 compatibility fix
