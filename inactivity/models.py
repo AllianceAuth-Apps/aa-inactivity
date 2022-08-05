@@ -81,7 +81,9 @@ class InactivityPing(models.Model):
     def __str__(self):
         return _("ping [policy='%(config_name)s' user='%(user_name)s']") % {
             "config_name": self.config.name,
-            "user_name": self.user.profile.main_character.character_name,
+            "user_name": self.user.profile.main_character.character_name
+            if self.user.profile.main_character
+            else "None",
         }
 
 

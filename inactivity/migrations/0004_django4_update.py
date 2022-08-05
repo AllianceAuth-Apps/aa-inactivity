@@ -7,7 +7,7 @@ class Migration(migrations.Migration):
 
     dependencies = [
         ("auth", "0012_alter_user_first_name_max_length"),
-        ("authentication", "0020_userprofile_language_userprofile_night_mode"),
+        ("authentication", "0017_remove_fleetup_permission"),
         ("inactivity", "0003_add_webhooks"),
     ]
 
