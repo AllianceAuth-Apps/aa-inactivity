@@ -7,7 +7,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [Unreleased] - yyyy-mm-dd
 
-### Added
+## [0.1.0a4] - 2022-08-05
 
 ### Changed
 
@@ -19,6 +19,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 - AA3 compatibility fix
 - Handle AttributeError when deleting a User who doesn't have a main_character set
+
+Thanks to @jtrenaud1s for the contribution!
 
 ## [0.1.0a3] - 2021-01-21
 
