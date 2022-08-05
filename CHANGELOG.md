@@ -18,6 +18,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 ### Fixed
 
 - AA3 compatibility fix
+- Handle AttributeError when deleting a User who doesn't have a main_character set
 
 ## [0.1.0a3] - 2021-01-21
 

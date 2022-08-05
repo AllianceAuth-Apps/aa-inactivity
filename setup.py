@@ -45,5 +45,6 @@ setup(
         "django-esi>=2.0.4",
         "django-multiselectfield",
         "aa-memberaudit>=1.0.0",
+        "allianceauth-app-utils>=1.14",
     ],
 )
