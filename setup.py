@@ -44,7 +44,7 @@ setup(
         "dhooks-lite>=0.6.1",
         "django-esi>=2.0.4",
         "django-multiselectfield",
-        "aa-memberaudit>=1.15.1",
+        "aa-memberaudit>=1.15.2,!=1.16.0a1,!=2.0.0a1",
         "allianceauth-app-utils>=1.14.1",
     ],
 )
