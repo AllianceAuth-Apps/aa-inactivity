@@ -9,21 +9,24 @@ This is a player activity monitoring plugin app for [Alliance Auth](https://gitl
 ![pre-commit](https://img.shields.io/badge/pre--commit-enabled-brightgreen?logo=pre-commit&logoColor=white)
 ![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)
 
+## Content
+
+- [Features](#features)
+- [Installation](#installation)
+- [Permissions](#permissions)
 
 ## Features
 
 - Notify users inactive for a specified time.
-- Notify administrators when users meet an inactivity theshold.
+- Notify administrators when users meet an inactivity threshold.
 - Keep track of leave of absence requests.
 - Notify administrators when leave of absence requests are created or approved.
 
-# Installation
+## Installation
 
-## Requirements
+### Requirements
 
 This app needs [Member Audit](https://gitlab.com/ErikKalkoken/aa-memberaudit) (and optionally, but ideally, [DiscordBot](https://github.com/pvyParts/allianceauth-discordbot)) to function. Please make sure they are installed before continuing.
-
-## Steps
 
 ### Step 1 - Install the Package
 
@@ -52,3 +55,12 @@ python manage.py collectstatic
 ```
 
 Restart your supervisor services for Auth
+
+## Permissions
+
+This app uses permissions to control access to features.
+
+Name | Purpose | Code
+-- | -- | --
+general - Can access this app | Enabling the app for a user. This permission should be enabled for everyone who is allowed to use the app |  `basic_access`
+general - Can manage leave of absence requests | Allows a user to approve/deny loa requests. |  `manage_leave`
