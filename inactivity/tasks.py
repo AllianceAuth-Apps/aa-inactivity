@@ -59,29 +59,21 @@ def check_inactivity_for_user(user_pk: int):
                 threshold_date = datetime.datetime.now(
                     datetime.timezone.utc
                 ).date() - datetime.timedelta(days=config.days)
-                registered = (
-                    Character.objects.filter(
-                        Q(character_ownership__user__pk=user_pk)
-                    ).count()
-                    > 0
-                )
+                registered = Character.objects.owned_by_user(user).exists()
                 active = (
-                    Character.objects.filter(
-                        Q(character_ownership__user__pk=user_pk),
+                    Character.objects.owned_by_user(user)
+                    .filter(
                         Q(online_status__last_login__gt=threshold_date)
                         | Q(online_status__last_logout__gt=threshold_date),
-                    ).count()
-                    > 0
+                    )
+                    .exists()
                 )
                 excused = last_loa and (
                     not last_loa.end or threshold_date < last_loa.end
                 )
-                pinged = (
-                    InactivityPing.objects.filter(
-                        user__pk=user_pk, config=config
-                    ).count()
-                    > 0
-                )
+                pinged = InactivityPing.objects.filter(
+                    user__pk=user_pk, config=config
+                ).exists()
                 if active:
                     InactivityPing.objects.filter(
                         user__pk=user_pk, config=config

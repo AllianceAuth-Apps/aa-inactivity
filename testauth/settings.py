@@ -268,7 +268,7 @@ SITE_NAME = "testauth"
 DEBUG = False
 
 # Add any additional apps to this list.
-INSTALLED_APPS += ["inactivity"]
+INSTALLED_APPS += ["eveuniverse", "inactivity", "memberaudit"]
 
 # Enter credentials to use MySQL/MariaDB. Comment out to use sqlite3
 """

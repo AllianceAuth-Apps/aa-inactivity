@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [Unreleased] - yyyy-mm-dd
 
+## [0.1.0a5] - 2022-08-06
+
+### Changed
+
+- Adopt new MemberAudit API for compatibility with upcoming model change
+
 ## [0.1.0a4] - 2022-08-05
 
 ### Changed
