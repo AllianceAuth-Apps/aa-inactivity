@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [Unreleased] - yyyy-mm-dd
 
+## [0.1.0a7] - 2023-05-21
+
+### Fixed
+
+- Can only create new requests when running in English locale
+
 ## [0.1.0a6] - 2022-08-06
 
 ### Changed
