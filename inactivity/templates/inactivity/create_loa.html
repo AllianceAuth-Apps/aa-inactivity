@@ -41,8 +41,11 @@
 
   <script>
   $( function() {
-    $( "#id_start" ).datepicker();
-    $( "#id_end" ).datepicker();
+    let params = {
+        dateFormat: "yy-mm-dd"
+    };
+    $( "#id_start" ).datepicker(params);
+    $( "#id_end" ).datepicker(params);
   } );
   </script>
 {% endblock %}

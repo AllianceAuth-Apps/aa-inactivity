@@ -16,7 +16,6 @@ from .models import LeaveOfAbsence
 @login_required
 @permission_required("inactivity.basic_access")
 def index(request):
-
     context = {}
     return render(request, "inactivity/index.html", context)
 
@@ -24,7 +23,6 @@ def index(request):
 @login_required
 @permission_required("inactivity.manage_leave")
 def manage(request):
-
     context = {}
     return render(request, "inactivity/manage.html", context)
 

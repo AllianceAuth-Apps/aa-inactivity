@@ -116,7 +116,6 @@ class LeaveOfAbsence(models.Model):
             Q(ping_configs__in=configs) | Q(ping_configs=None), Q(is_active=True)
         )
         if self._state.adding:
-
             for webhook in webhooks:
                 if str(Webhook.NOTIFICATION_TYPE_LOA_NEW) in webhook.notification_types:
                     if webhook.webhook_type == Webhook.WEBHOOK_TYPE_DISCORD:
