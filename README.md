@@ -12,14 +12,19 @@ This is a player activity monitoring plugin app for [Alliance Auth](https://gitl
 ## Content
 
 - [Features](#features)
+- [Screenshots](#screenshots)
 - [Installation](#installation)
 - [Permissions](#permissions)
 
 ## Features
 
-- Notify users who become inactive.
-- Notify leadership when users become inactive.
+- Automatically notify users who become inactive.
+- Automatically notify managers when users become inactive.
 - Approval process for leave of absence requests
+- Can inform managers about various events via Discord webhook
+- List of inactive users
+- Define through policies after how many days a user of absence a user is considered inactive
+- Fetching the last login dates from Member Audit to determine how long a user has been inactive
 
 Users are notified on Alliance Auth. If you want those notifications to be forwarded as DM on Discord, please check out this app: [Discord Notify](https://gitlab.com/ErikKalkoken/aa-discordnotify).
 
@@ -27,7 +32,7 @@ Users are notified on Alliance Auth. If you want those notifications to be forwa
 
 A user creating a new leave of absence request:
 
-[!request](https://imgpile.com/images/9oMUiC.png)
+![request](https://imgpile.com/images/9oMUiC.png)
 
 A manager reviewing a leave of absence request:
 
