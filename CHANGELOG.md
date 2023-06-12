@@ -7,6 +7,38 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [Unreleased] - yyyy-mm-dd
 
+## [1.0.0] - TBD
+
+### Added
+
+- Adds a menu to the UI
+- Show badge for unapproved requests in side bar
+- Handling for HTTP 429 errors
+- Auto retry on network timeouts
+- Add tab to show all approved requests
+- Page showing currently inactive users
+
+### Changed
+
+- When creating InactivityPing objects set timestamp via Django default factory
+- Switch to py-cord library for sending to Discord webhooks due to built in handling of rate limits
+- Check inactivity for users in parallel
+- Run tasks with slightly lower default priority to avoid congestion
+- Drops support for Python 3.7
+- Adds support for Python 3.10
+- Moved build process to PEP 621
+- Drops support for AA2
+- Adds support for AA3
+- Adds support for Python 3.11
+- Breaking change: Dropped support for aa_discordbot. Notifications are generated to Auth. You can install Discord Notify to get them on Discord like before.
+- Show users with character icon in lists
+- Approver needs to provide reason for rejecting loa requests
+- Denied requests are kept and shown in requests history
+
+### Fixed
+
+- Can create requests with overlapping time frames
+
 ## [0.1.0a7] - 2023-05-21
 
 ### Fixed

@@ -1,165 +1,272 @@
-import datetime
+from typing import Optional
+
+import humanize
 
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required, permission_required
-from django.db.models import Q
-from django.http import HttpResponseNotFound, JsonResponse
-from django.shortcuts import redirect, render
+from django.http import JsonResponse
+from django.shortcuts import get_object_or_404, redirect, render
+from django.urls import reverse
 from django.utils.html import format_html
+from django.utils.timezone import now
 from django.utils.translation import gettext_lazy as _
-from django.views.decorators.http import require_POST
 
-from .forms import CreateRequestForm
-from .models import LeaveOfAbsence
+from allianceauth.notifications import notify
+
+from .forms import CreateRequestForm, RejectRequestForm
+from .helpers import user_for_display
+from .models import InactivityPing, InactivityPingConfig, LeaveOfAbsence, Webhook
+
+
+def add_common_context(request, context: Optional[dict] = None) -> dict:
+    """adds the common context used by all view"""
+    context = context or {}
+    new_context = {
+        **{
+            "app_title": "Leave of Absence",
+            "unapproved_count": LeaveOfAbsence.objects.unapproved_count(),
+        },
+        **context,
+    }
+    return new_context
+
+
+def make_action_button_html(
+    label: str,
+    url: str,
+    button_type: str = "default",
+    tooltip: str = "",
+    disabled: bool = False,
+) -> str:
+    """Make HTML for an action button."""
+    return format_html(
+        '<a href="{}" class="btn btn-{}"{}{}>{}</a>',
+        url,
+        button_type,
+        format_html(' title="{}"', tooltip) if tooltip else "",
+        format_html(' disabled="disabled"') if disabled else "",
+        label,
+    )
 
 
 @login_required
 @permission_required("inactivity.basic_access")
 def index(request):
-    context = {}
-    return render(request, "inactivity/index.html", context)
+    return redirect("inactivity:my_requests")
 
 
-@login_required
-@permission_required("inactivity.manage_leave")
-def manage(request):
-    context = {}
-    return render(request, "inactivity/manage.html", context)
-
-
-def convert_loa(loa: LeaveOfAbsence) -> dict:
-    return {
-        "user": loa.user.profile.main_character.character_name,
-        "start": loa.start,
-        "end": loa.end if loa.end else "&mdash;",
-        "approved": loa.approver is not None,
-        "pk": loa.pk,
-        "notes": loa.notes,
-    }
+# ---- my requests -----
 
 
 @login_required
 @permission_required("inactivity.basic_access")
-def view_loa_request(request, request_id):
-    if request.user.has_perm("inactivity.manage_leave"):
-        candidate = LeaveOfAbsence.objects.filter(pk=request_id).first()
-    else:
-        candidate = LeaveOfAbsence.objects.filter(
-            user=request.user, pk=request_id
-        ).first()
-    if candidate:
-        context = {"request": convert_loa(candidate)}
-
-        return render(request, "inactivity/modals/view_request_content.html", context)
-
-    else:
-        return HttpResponseNotFound("<h1>Request not found</h1>")
-
-
-@login_required
-@permission_required("inactivity.basic_access")
-def list_loa_requests(request):
-    results = []
-    now = datetime.datetime.now(datetime.timezone.utc)
-
-    for req in LeaveOfAbsence.objects.filter(
-        Q(user=request.user), Q(end=None) | Q(end__gt=now)
-    ):
-        results.append(convert_loa(req))
-
-    return JsonResponse(results, safe=False)
-
-
-@login_required
-@permission_required("inactivity.manage_leave")
-def list_pending_loa_requests(request):
-    results = []
-    now = datetime.datetime.now(datetime.timezone.utc)
-
-    for req in LeaveOfAbsence.objects.filter(
-        Q(end=None) | Q(end__gt=now), Q(approver=None)
-    ):
-        results.append(convert_loa(req))
-
-    return JsonResponse(results, safe=False)
-
-
-@login_required
-@permission_required("inactivity.manage_leave")
-def approve_loa_request(request, request_id):
-    req = LeaveOfAbsence.objects.get(pk=request_id)
-    req.approver = request.user
-    req.save()
-    messages.success(
-        request,
-        format_html(
-            _("Your have appproved %(user)s's leave request.")
-            % {
-                "user": format_html(
-                    "<strong>{}</strong>",
-                    req.user.profile.main_character.character_name,
-                ),
-            }
-        ),
+def my_requests(request):
+    context = {"page_title": _("My Requests")}
+    return render(
+        request, "inactivity/my_requests.html", add_common_context(request, context)
     )
-    return redirect("inactivity:manage_requests")
 
 
 @login_required
 @permission_required("inactivity.basic_access")
-@require_POST
-def cancel_loa_request(request, request_id):
-    if request.user.has_perm("inactivity.manage_leave"):
-        candidate = LeaveOfAbsence.objects.filter(pk=request_id).first()
-    else:
-        candidate = LeaveOfAbsence.objects.filter(
-            user=request.user, pk=request_id
-        ).first()
-    if candidate:
-        candidate.delete()
-        messages.info(
-            request,
-            format_html(
-                _(
-                    "Your leave of absence request from %(start)s to %(end)s has been deleted."
-                )
-                % {
-                    "start": format_html("<strong>{}</strong>", candidate.start),
-                    "end": format_html("<strong>{}</strong>", candidate.end),
-                }
-            ),
+def my_open_requests_data(request):
+    data = []
+    for loa_request in LeaveOfAbsence.objects.filter_pending().filter(
+        user=request.user
+    ):
+        row = loa_request.to_output_dict()
+        actions = make_action_button_html(
+            label=_("Cancel"),
+            url=reverse("inactivity:cancel_loa_request", args=[loa_request.pk]),
+            button_type="danger",
+            tooltip="Cancel this request",
         )
-        return redirect("inactivity:index")
-    else:
-        messages.error(
-            request,
-            format_html(_("No leave of absence request matched your request.")),
-        )
-        return redirect("inactivity:index")
+        row["actions"] = actions
+        data.append(row)
+    return JsonResponse({"data": data})
+
+
+@login_required
+@permission_required("inactivity.basic_access")
+def my_completed_requests_data(request):
+    data = []
+    for loa_request in (
+        LeaveOfAbsence.objects.filter_processed()
+        .filter(user=request.user)
+        .annotate_status()
+    ):
+        row = loa_request.to_output_dict()
+        data.append(row)
+    return JsonResponse({"data": data})
 
 
 @login_required
 @permission_required("inactivity.basic_access")
 def create_loa_request(request):
-    if request.method == "GET":
-        create_form = CreateRequestForm()
-        context = {"create_form": create_form}
-        return render(request, "inactivity/create_loa.html", context)
-    elif request.method == "POST":
-        create_form = CreateRequestForm(request.POST)
-        model = create_form.save(commit=False)
-        model.user = request.user
-        model.save()
-        messages.info(
-            request,
-            format_html(
-                _(
-                    "Your leave of absence request from %(start)s to %(end)s has been submitted for review."
-                )
-                % {
-                    "start": format_html("<strong>{}</strong>", model.start),
-                    "end": format_html("<strong>{}</strong>", model.end),
-                }
+    if request.method == "POST":
+        form = CreateRequestForm(request.POST, user=request.user)
+        if form.is_valid():
+            loa: LeaveOfAbsence = form.save()
+            messages.info(
+                request,
+                format_html(_("Your request has been submitted for review: %s") % loa),
+            )
+            message = _("New request: %s") % loa
+            Webhook.objects.send_message_to_active_webhooks(
+                loa, Webhook.NotificationType.LOA_NEW, message
+            )
+            return redirect("inactivity:index")
+
+    else:
+        form = CreateRequestForm(user=request.user)
+
+    context = {"form": form}
+    return render(request, "inactivity/create_loa.html", context)
+
+
+@login_required
+@permission_required("inactivity.basic_access")
+def cancel_loa_request(request, loa_request_pk):
+    loa = get_object_or_404(LeaveOfAbsence, pk=loa_request_pk, user=request.user)
+    loa.delete()
+    messages.info(request, format_html(_("%s has been canceled.") % loa))
+    return redirect("inactivity:index")
+
+
+# ---- manage requests -----
+
+
+@login_required
+@permission_required("inactivity.manage_leave")
+def manage_requests(request):
+    context = {"page_title": _("Manage Requests")}
+    return render(
+        request, "inactivity/manage_requests.html", add_common_context(request, context)
+    )
+
+
+@login_required
+@permission_required("inactivity.manage_leave")
+def list_pending_loa_requests(request):
+    data = []
+    for loa_request in LeaveOfAbsence.objects.filter_pending():
+        row = loa_request.to_output_dict()
+        actions = [
+            make_action_button_html(
+                label="Approve",
+                url=reverse("inactivity:approve_loa_request", args=[loa_request.pk]),
+                button_type="success",
+                tooltip=_("Approve this request"),
             ),
-        )
-        return redirect("inactivity:index")
+            make_action_button_html(
+                label=_("Deny"),
+                url=reverse("inactivity:deny_loa_request", args=[loa_request.pk]),
+                button_type="danger",
+                tooltip=_("Deny this request"),
+            ),
+        ]
+        row["actions"] = " ".join(actions)
+        data.append(row)
+    return JsonResponse({"data": data})
+
+
+@login_required
+@permission_required("inactivity.manage_leave")
+def list_processed_loa_requests(request):
+    data = []
+    for loa_request in LeaveOfAbsence.objects.filter_processed().annotate_status():
+        row = loa_request.to_output_dict()
+        row["actions"] = ""
+        data.append(row)
+    return JsonResponse({"data": data})
+
+
+@login_required
+@permission_required("inactivity.manage_leave")
+def approve_loa_request(request, loa_request_pk):
+    loa: LeaveOfAbsence = get_object_or_404(LeaveOfAbsence, pk=loa_request_pk)
+    loa.approver = request.user
+    loa.save()
+    messages.success(request, format_html(_("Your have approved: %s") % loa))
+    message = _("%(loa)s has been approved by %(approver_name)s") % {
+        "loa": loa,
+        "approver_name": loa.approver_name,
+    }
+    notify.success(loa.user, title="LOA approved", message=message)
+    Webhook.objects.send_message_to_active_webhooks(
+        loa, Webhook.NotificationType.LOA_APPROVED, message
+    )
+    return redirect("inactivity:manage_requests")
+
+
+@login_required
+@permission_required("inactivity.manage_leave")
+def deny_loa_request(request, loa_request_pk):
+    loa_request: LeaveOfAbsence = get_object_or_404(LeaveOfAbsence, pk=loa_request_pk)
+    requestor = loa_request.user
+
+    if request.method == "POST":
+        form = RejectRequestForm(request.POST)
+        if form.is_valid():
+            loa_request.approver = request.user
+            loa_request.reason = form.cleaned_data["reason"]
+            loa_request.save()
+            messages.info(request, _("%s has been denied") % loa_request)
+            manager_display = user_for_display(loa_request.approver)
+            message = _(
+                "%(loa)s has been denied by %(manager)s. Reason: %(reason)s"
+            ) % {
+                "loa": loa_request,
+                "manager": manager_display.name,
+                "reason": loa_request.reason,
+            }
+            notify.danger(requestor, "LOA rejected", message)
+            return redirect("inactivity:manage_requests")
+
+    else:
+        form = RejectRequestForm(initial={"request": str(loa_request)})
+
+    return render(
+        request,
+        "inactivity/reject_request.html",
+        {"form": form, "loa_request": loa_request},
+    )
+
+
+# ---- inactive users -----
+
+
+@login_required
+@permission_required("inactivity.basic_access")
+def inactive_users(request):
+    has_policies = InactivityPingConfig.objects.exists()
+    context = {"page_title": _("Inactive users"), "has_policies": has_policies}
+    return render(
+        request, "inactivity/inactive_users.html", add_common_context(request, context)
+    )
+
+
+@login_required
+@permission_required("inactivity.basic_access")
+def inactive_users_data(request):
+    data = []
+    for obj in InactivityPing.objects.all():
+        obj: InactivityPing
+        user_obj = user_for_display(obj.user)
+        row = {
+            "pk": obj.pk,
+            "user_html": {"display": user_obj.html, "sort": user_obj.name},
+            "last_login_at": {
+                "display": humanize.naturaltime(obj.last_login_at, when=now())
+                if obj.last_login_at
+                else "?",
+                "sort": obj.last_login_at.isoformat() if obj.last_login_at else None,
+            },
+            "policy": obj.config.name,
+            "notified_at": {
+                "display": humanize.naturaltime(obj.timestamp, when=now()),
+                "sort": obj.timestamp.isoformat(),
+            },
+        }
+        data.append(row)
+    return JsonResponse({"data": data})
