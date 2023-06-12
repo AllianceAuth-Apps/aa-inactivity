@@ -32,6 +32,7 @@ INSTALLED_APPS = [
     "allianceauth.groupmanagement",
     "allianceauth.notifications",
     "allianceauth.thirdparty.navhelper",
+    "allianceauth.analytics",
 ]
 
 SECRET_KEY = "wow I'm a really bad default secret key"
@@ -65,27 +66,31 @@ BASE_DIR = os.path.dirname(PROJECT_DIR)
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
+    "allianceauth.authentication.middleware.UserSettingsMiddleware",
+    "django.middleware.locale.LocaleMiddleware",
     "django.middleware.common.CommonMiddleware",
     "django.middleware.csrf.CsrfViewMiddleware",
     "django.contrib.auth.middleware.AuthenticationMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
-    "django.middleware.locale.LocaleMiddleware",
+    "allianceauth.analytics.middleware.AnalyticsMiddleware",
 ]
 
 ROOT_URLCONF = "allianceauth.urls"
 
 LOCALE_PATHS = (os.path.join(BASE_DIR, "locale/"),)
 
-
-def ugettext(s):
-    return s
-
-
+ugettext = lambda s: s
 LANGUAGES = (
-    ("en", ugettext("English")),
-    ("de", ugettext("German")),
-    ("es", ugettext("Spanish")),
+    ("en", "English"),
+    ("de", "German"),
+    ("es", "Spanish"),
+    ("zh-hans", "Chinese Simplified"),
+    ("ru", "Russian"),
+    ("ko", "Korean"),
+    ("fr", "French"),
+    ("ja", "Japanese"),
+    ("it", "Italian"),
 )
 
 TEMPLATES = [
@@ -103,7 +108,6 @@ TEMPLATES = [
                 "django.template.context_processors.media",
                 "django.template.context_processors.static",
                 "django.template.context_processors.tz",
-                "allianceauth.notifications.context_processors.user_notification_count",
                 "allianceauth.context_processors.auth_settings",
             ],
         },
@@ -140,6 +144,8 @@ AUTHENTICATION_BACKENDS = [
 
 LANGUAGE_CODE = "en-us"
 
+LANGUAGE_COOKIE_AGE = 1209600
+
 TIME_ZONE = "UTC"
 
 USE_I18N = True
@@ -161,11 +167,8 @@ MESSAGE_TAGS = {messages.ERROR: "danger"}
 
 CACHES = {
     "default": {
-        "BACKEND": "redis_cache.RedisCache",
-        "LOCATION": "localhost:6379",
-        "OPTIONS": {
-            "DB": 1,
-        },
+        "BACKEND": "django_redis.cache.RedisCache",
+        "LOCATION": "redis://127.0.0.1:6379/1",
     }
 }
 
@@ -182,14 +185,13 @@ SITE_NAME = "Alliance Auth"
 
 LOGIN_URL = "auth_login_user"  # view that handles login logic
 
-# default destination when logging in if no redirect specified
-LOGIN_REDIRECT_URL = "authentication:dashboard"
+LOGIN_REDIRECT_URL = "authentication:dashboard"  # default destination when logging in if no redirect specified
 LOGOUT_REDIRECT_URL = "authentication:dashboard"  # destination after logging out
 # Both of these redirects accept values as per the django redirect shortcut
 # https://docs.djangoproject.com/en/1.11/topics/http/shortcuts/#redirect
 # - url names eg 'authentication:dashboard'
 # - relative urls eg '/dashboard'
-# - absolute urls eg 'http://inactivity.com/dashboard'
+# - absolute urls eg 'http://example.com/dashboard'
 
 # scopes required on new tokens when logging in. Cannot be blank.
 LOGIN_TOKEN_SCOPES = ["publicData"]
@@ -245,6 +247,9 @@ LOGGING = {
     },
 }
 
+DEFAULT_AUTO_FIELD = "django.db.models.AutoField"
+
+
 ########################################################
 # local.py settings
 
@@ -262,6 +267,7 @@ STATIC_ROOT = "/var/www/testauth/static/"
 # Change this to change the name of the auth site displayed
 # in page titles and the site header.
 SITE_NAME = "testauth"
+SITE_URL = "http://127.0.0.1:8000"
 
 # Change this to enable/disable debug mode, which displays
 # useful error messages but can leak sensitive data.
@@ -311,4 +317,5 @@ DEFAULT_FROM_EMAIL = ""
 # Add any custom settings below here. #
 #######################################
 
-DEFAULT_AUTO_FIELD = "django.db.models.AutoField"
+STATICFILES_DIRS = []  # needed to suppress a warning
+ANALYTICS_DISABLED = True

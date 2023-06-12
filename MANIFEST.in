@@ -1,5 +1,0 @@
-include LICENSE
-include README.md
-recursive-include inactivity *.py
-recursive-include inactivity/static *
-recursive-include inactivity/templates *

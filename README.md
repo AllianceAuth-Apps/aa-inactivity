@@ -17,22 +17,39 @@ This is a player activity monitoring plugin app for [Alliance Auth](https://gitl
 
 ## Features
 
-- Notify users inactive for a specified time.
-- Notify administrators when users meet an inactivity threshold.
-- Keep track of leave of absence requests.
-- Notify administrators when leave of absence requests are created or approved.
+- Notify users who become inactive.
+- Notify leadership when users become inactive.
+- Approval process for leave of absence requests
+
+Users are notified on Alliance Auth. If you want those notifications to be forwarded as DM on Discord, please check out this app: [Discord Notify](https://gitlab.com/ErikKalkoken/aa-discordnotify).
+
+## Screenshots
+
+A user creating a new leave of absence request:
+
+[!request](https://imgpile.com/images/9oMUiC.png)
+
+A manager reviewing a leave of absence request:
+
+![pending](https://imgpile.com/images/9oKyoP.png)
+
+A manager looking through the list of currently inactive and notified users:
+
+![notified](https://imgpile.com/images/9oMIrx.png)
 
 ## Installation
 
-### Requirements
+### Step 0 - Requirements
 
-This app needs [Member Audit](https://gitlab.com/ErikKalkoken/aa-memberaudit) (and optionally, but ideally, [DiscordBot](https://github.com/pvyParts/allianceauth-discordbot)) to function. Please make sure they are installed before continuing.
+This app needs [Member Audit](https://gitlab.com/ErikKalkoken/aa-memberaudit) to function. Please make sure it is installed before continuing.
 
 ### Step 1 - Install the Package
 
 Make sure you are in the virtual environment (venv) of your Alliance Auth installation. Then install the newest release from PyPI:
 
-`pip install aa-inactivity`
+```bash
+pip install aa-inactivity`
+```
 
 ### Step 2 - Config
 
