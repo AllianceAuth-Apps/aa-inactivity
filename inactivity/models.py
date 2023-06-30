@@ -184,9 +184,7 @@ class LeaveOfAbsence(models.Model):
             humanize.naturaldelta(self.end - self.start) if self.end else _("open end")
         )
         created_at_display = (
-            humanize.naturaltime(self.created_at, when=now())
-            if self.created_at
-            else "?"
+            humanize.naturaltime(self.created_at) if self.created_at else "?"
         )
         try:
             status = self.status
