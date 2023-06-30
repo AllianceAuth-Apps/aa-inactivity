@@ -8,7 +8,6 @@ from django.http import JsonResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
 from django.utils.html import format_html
-from django.utils.timezone import now
 from django.utils.translation import gettext_lazy as _
 
 from allianceauth.notifications import notify
@@ -257,14 +256,14 @@ def inactive_users_data(request):
             "pk": obj.pk,
             "user_html": {"display": user_obj.html, "sort": user_obj.name},
             "last_login_at": {
-                "display": humanize.naturaltime(obj.last_login_at, when=now())
+                "display": humanize.naturaltime(obj.last_login_at)
                 if obj.last_login_at
                 else "?",
                 "sort": obj.last_login_at.isoformat() if obj.last_login_at else None,
             },
             "policy": obj.config.name,
             "notified_at": {
-                "display": humanize.naturaltime(obj.timestamp, when=now()),
+                "display": humanize.naturaltime(obj.timestamp),
                 "sort": obj.timestamp.isoformat(),
             },
         }
