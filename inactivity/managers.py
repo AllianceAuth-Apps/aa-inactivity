@@ -1,3 +1,5 @@
+"""Managers for Inactivity."""
+
 from django.contrib.auth.models import User
 from django.db import models
 from django.db.models import Case, Q, Value, When
@@ -14,12 +16,12 @@ class LeaveOfAbsenceQuerySet(models.QuerySet):
         return self.filter(approver__isnull=False)
 
     def annotate_status(self):
-        Status = self.model.Status
+        """Add status annotations."""
         return self.annotate(
             status=Case(
-                When(approver__isnull=True, then=Value(Status.PENDING)),
-                When(reason__isnull=False, then=Value(Status.DENIED)),
-                default=Value(Status.APPROVED),
+                When(approver__isnull=True, then=Value(self.model.Status.PENDING)),
+                When(reason__isnull=False, then=Value(self.model.Status.DENIED)),
+                default=Value(self.model.Status.APPROVED),
             )
         )
 
@@ -60,6 +62,7 @@ class WebhookQueryset(models.QuerySet):
 
 class WebhookManagerBase(models.Manager):
     def send_message_to_active_webhooks(self, loa, notif_type, message):
+        """Send a message to all active webhooks."""
         webhooks = self.relevant_for_user(loa.user).filter(
             is_active=True, notification_types__contains=notif_type
         )

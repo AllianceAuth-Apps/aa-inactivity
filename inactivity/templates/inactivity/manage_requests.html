@@ -73,6 +73,7 @@
 {% block extra_javascript %}
 
     {% include 'bundles/datatables-js.html' %}
+    <script type="application/javascript" src="{% static 'memberaudit/vendor/datatables/plugins/filterDropDown.min.js' %}"></script>
 
     <script>
         "use strict";
@@ -102,14 +103,29 @@
                     { data: "duration" },
                     { data: "notes" },
                     { data: "actions" },
+                    /* visible */
+                    { data: "requestor_corporation" },
                 ],
                 lengthMenu: lengthMenu,
                 columnDefs: [
-                    { sortable: false, targets: [6] }
+                    {
+                        sortable: false, targets: [6],
+                        visible: false, targets: [7]
+                    }
                 ],
                 order: [
                     [0, "asc"],
-                ]
+                ],
+                filterDropDown: {
+                    columns: [
+                        {
+                            idx: 7,
+                            title: "{% translate 'Corporation' %}",
+                            maxWidth: "12em"
+                        }
+                    ],
+                    bootstrap: true
+                },
             });
 
 
@@ -134,11 +150,30 @@
                     { data: "notes" },
                     { data: "status_html" },
                     { data: "approver_html" },
+                    /* visible */
+                    { data: "requestor_corporation" },
+
                 ],
                 lengthMenu: lengthMenu,
                 order: [
                     [0, "desc"],
                 ],
+                columnDefs: [
+                    {
+                        visible: false, targets: [8]
+                    }
+                ],
+                filterDropDown: {
+                    columns: [
+                        {
+                            idx: 8,
+                            title: "{% translate 'Corporation' %}",
+                            maxWidth: "12em"
+                        }
+                    ],
+                    bootstrap: true
+                },
+
             });
         });
     </script>

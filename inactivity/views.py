@@ -1,3 +1,5 @@
+"""Views for Inactivity."""
+
 from typing import Optional
 
 import humanize
@@ -247,7 +249,8 @@ def inactive_users(request):
 
 @login_required
 @permission_required("inactivity.basic_access")
-def inactive_users_data(request):
+def inactive_users_data(request) -> JsonResponse:
+    """Return response with data for rendering the inactive users dataTable."""
     data = []
     for obj in InactivityPing.objects.all():
         obj: InactivityPing
@@ -266,6 +269,9 @@ def inactive_users_data(request):
                 "display": humanize.naturaltime(obj.timestamp),
                 "sort": obj.timestamp.isoformat(),
             },
+            "corporation_name": user_obj.character.corporation_name
+            if user_obj.character
+            else "",
         }
         data.append(row)
     return JsonResponse({"data": data})

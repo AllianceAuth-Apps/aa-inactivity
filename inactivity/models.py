@@ -1,3 +1,5 @@
+"""Models for Inactivity."""
+
 import humanize
 from multiselectfield import MultiSelectField
 
@@ -70,6 +72,7 @@ class InactivityPingConfig(models.Model):
         return _("inactivity policy: %(name)s") % {"name": self.name}
 
     def is_applicable_to(self, user: User) -> bool:
+        """Return True if use is applicable to this config, else False."""
         is_applicable = True
         if self.groups.count() > 0:
             is_applicable &= self.groups.filter(user=user).count() > 0
@@ -169,6 +172,7 @@ class LeaveOfAbsence(models.Model):
 
     @property
     def end_text(self) -> str:
+        """Return text for end property."""
         return str(self.end) if self.end else _("open end")
 
     @property
@@ -178,7 +182,13 @@ class LeaveOfAbsence(models.Model):
         return requestor.name_with_ticker
 
     def to_output_dict(self) -> dict:
+        """Convert object to an output dictionary."""
         requestor_display = user_for_display(self.user)
+        requestor_corporation_name = (
+            requestor_display.character.corporation_name
+            if requestor_display.character
+            else ""
+        )
         approver_display = user_for_display(self.approver) if self.approver else None
         duration = (
             humanize.naturaldelta(self.end - self.start) if self.end else _("open end")
@@ -187,7 +197,7 @@ class LeaveOfAbsence(models.Model):
             humanize.naturaltime(self.created_at) if self.created_at else "?"
         )
         try:
-            status = self.status
+            status = self.status  # type: ignore
         except AttributeError:
             status_html = ""
         else:
@@ -204,7 +214,7 @@ class LeaveOfAbsence(models.Model):
 
         result = {
             "approver": approver_display.name if approver_display else "",
-            "approver_html": approver_display.html if self.approver else "",
+            "approver_html": approver_display.html if approver_display else "",
             "created_at": {
                 "display": created_at_display,
                 "sort": self.created_at.isoformat() if self.created_at else "",
@@ -214,6 +224,7 @@ class LeaveOfAbsence(models.Model):
             "notes": self.notes if self.notes else "-",
             "requestor": requestor_display.name,
             "requestor_html": requestor_display.html,
+            "requestor_corporation": requestor_corporation_name,
             "pk": self.pk,
             "start": self.start,
             "status_html": status_html,
