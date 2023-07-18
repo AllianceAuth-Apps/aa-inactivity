@@ -1,3 +1,5 @@
+"""Helpers for Inactivity."""
+
 from typing import NamedTuple, Optional
 
 from allianceauth.authentication.models import User
@@ -16,6 +18,7 @@ class UserForDisplay(NamedTuple):
     user: User
 
     def has_main(self) -> bool:
+        """Return True when this user has a main."""
         return bool(self.character)
 
 

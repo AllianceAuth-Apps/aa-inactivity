@@ -1,12 +1,11 @@
 stages:
-  - pre-commit
-  - review
+  - checks
   - test
   - deploy
 
 pre-commit:
-  stage: review
-  image: python:3.10-buster
+  stage: checks
+  image: python:3.10-bullseye
   variables:
     PRE_COMMIT_HOME: ${CI_PROJECT_DIR}/.cache/pre-commit
   cache:
@@ -16,9 +15,7 @@ pre-commit:
     - pip install pre-commit
     - pre-commit run --all-files
 
-.test:
-  stage: test
-  needs: []
+.tox_setup:
   before_script:
     - apt-get update
     - apt-get install redis-server -y
@@ -26,29 +23,37 @@ pre-commit:
     - python -V
     - pip install tox
 
-test-38-django40:
-  extends: .test
+# pylint:
+#   stage: checks
+#   extends: .tox_setup
+#   image: python:3.10-bullseye
+#   script:
+#     - tox -e pylint
+#   allow_failure: true
+
+test-py38-dj40:
+  extends: .tox_setup
   image: python:3.8-bullseye
   script:
     - tox -e py38-django40
     - bash <(curl -s https://codecov.io/bash)
 
-test-39-django40:
-  extends: .test
+test-py39-dj40:
+  extends: .tox_setup
   image: python:3.9-bullseye
   script:
     - tox -e py39-django40
     - bash <(curl -s https://codecov.io/bash)
 
-test-310-django40:
-  extends: .test
+test-py310-dj40:
+  extends: .tox_setup
   image: python:3.10-bullseye
   script:
     - tox -e py310-django40
     - bash <(curl -s https://codecov.io/bash)
 
-test-311-django40:
-  extends: .test
+test-py311-dj40:
+  extends: .tox_setup
   image: python:3.11-bullseye
   script:
     - tox -e py311-django40
@@ -56,7 +61,7 @@ test-311-django40:
 
 deploy-pypi:
   stage: deploy
-  image: python:3.10-buster
+  image: python:3.10-bullseye
 
   before_script:
     - pip install build twine
@@ -67,15 +72,3 @@ deploy-pypi:
 
   only:
     - tags
-
-# danger:
-#   needs: []
-#   stage: review
-#   before_script:
-#     - gem install gitlab -v 4.18.0
-#     - gem install danger-gitlab
-#   script:
-#     - danger
-
-# include:
-#   - template: 'Workflows/MergeRequest-Pipelines.gitlab-ci.yml'

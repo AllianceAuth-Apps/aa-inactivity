@@ -1,3 +1,5 @@
+"""Tasks for Inactivity."""
+
 import datetime as dt
 from http import HTTPStatus
 
@@ -53,6 +55,7 @@ def check_inactivity():
 
 @shared_task
 def check_inactivity_for_user(user_pk: int):
+    """Perform inactivity checks for given user."""
     today = now().date()
     user = User.objects.get(pk=user_pk)
     if not (
@@ -95,6 +98,7 @@ def check_inactivity_for_user(user_pk: int):
 
 @shared_task
 def send_inactivity_ping(user_pk: int, config_pk: int, last_login_at: dt.datetime):
+    """Send an inactivity ping to webhooks."""
     config = InactivityPingConfig.objects.get(pk=config_pk)
     user = User.objects.get(pk=user_pk)
     notify.danger(user, title="Inactivity notification", message=config.text)
