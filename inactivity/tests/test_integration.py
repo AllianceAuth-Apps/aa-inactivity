@@ -4,7 +4,7 @@ from unittest.mock import patch
 
 from memberaudit.tests.testdata.factories import (
     create_character_from_user,
-    create_online_status,
+    create_character_online_status,
 )
 
 from django.test import override_settings
@@ -127,7 +127,7 @@ class TestTasksEnd2End(NoSocketsTestCase):
         user = UserMainRequestorFactory()
         character = create_character_from_user(user=user)
         last_login = now() - dt.timedelta(days=5)
-        create_online_status(
+        create_character_online_status(
             character=character,
             last_login=last_login,
             last_logout=last_login + dt.timedelta(hours=4),

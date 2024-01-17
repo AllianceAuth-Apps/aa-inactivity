@@ -2,6 +2,7 @@
 
 import humanize
 from multiselectfield import MultiSelectField
+from multiselectfield.utils import get_max_length
 
 from django.contrib.auth.models import Group, User
 from django.db import models
@@ -93,11 +94,14 @@ class InactivityPing(models.Model):
         default_permissions = ()
 
     def __str__(self):
+        try:
+            user_name = self.user.profile.main_character.character_name
+        except AttributeError:
+            user_name = self.user.username
+
         return _("ping [policy='%(config_name)s' user='%(user_name)s']") % {
             "config_name": self.config.name,
-            "user_name": self.user.profile.main_character.character_name
-            if self.user.profile.main_character
-            else "None",
+            "user_name": user_name,
         }
 
 
@@ -105,6 +109,8 @@ class LeaveOfAbsence(models.Model):
     """A leave of absence request."""
 
     class Status(models.TextChoices):
+        """A leave of absence status."""
+
         PENDING = "pending"
         APPROVED = "approved"
         DENIED = "denied"
@@ -236,11 +242,15 @@ class Webhook(models.Model):
     "A webhook configuration to send message to."
 
     class NotificationType(models.IntegerChoices):
+        """A notification type."""
+
         INACTIVE_USER = 1, "Inactive User"
         LOA_NEW = 10, "Leave of Absence - Created"
         LOA_APPROVED = 11, "Leave of Absence - Approved"
 
     class WebhookType(models.IntegerChoices):
+        """A type of a webhook."""
+
         DISCORD = 1, _("Discord Webhook")
 
     name = models.CharField(
@@ -249,6 +259,7 @@ class Webhook(models.Model):
 
     notification_types = MultiSelectField(
         choices=NotificationType.choices,
+        max_length=get_max_length(NotificationType.choices, None),
         help_text=_(
             "only notifications of the selected types are sent to this webhook"
         ),

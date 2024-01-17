@@ -12,6 +12,8 @@ from .models import LeaveOfAbsence
 
 
 class CreateRequestForm(forms.ModelForm):
+    """A form for creating a new inactivity request."""
+
     def __init__(self, *args, **kwargs) -> None:
         self._user = kwargs.pop("user")
         super().__init__(*args, **kwargs)
@@ -58,6 +60,8 @@ class CreateRequestForm(forms.ModelForm):
 
 
 class RejectRequestForm(forms.Form):
+    """A form for rejecting an inactivity request."""
+
     request = forms.CharField(
         disabled=True,
         help_text="The leave of absence request to be rejected",

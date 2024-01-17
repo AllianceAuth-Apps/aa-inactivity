@@ -7,6 +7,14 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [Unreleased] - yyyy-mm-dd
 
+## [1.1.0] - 2024-01-17
+
+### Changed
+
+- Added support for AA4
+- Add missing docstrings
+- Add pylint checks
+
 ## [1.0.0] - 2023-07-18
 
 ### Added

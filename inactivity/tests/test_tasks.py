@@ -6,7 +6,7 @@ import discord
 from celery.exceptions import Retry as CeleryRetry
 from memberaudit.tests.testdata.factories import (
     create_character_from_user,
-    create_online_status,
+    create_character_online_status,
 )
 
 from django.utils.timezone import now
@@ -77,7 +77,7 @@ class TestCheckInactivityForUser(NoSocketsTestCase):
         user = UserMainRequestorFactory()
         character = create_character_from_user(user=user)
         last_login = now() - dt.timedelta(days=5)
-        create_online_status(
+        create_character_online_status(
             character=character,
             last_login=last_login,
             last_logout=last_login + dt.timedelta(hours=4),
@@ -93,7 +93,7 @@ class TestCheckInactivityForUser(NoSocketsTestCase):
         user = UserMainRequestorFactory()
         character = create_character_from_user(user=user)
         last_login = now() - dt.timedelta(days=1)
-        create_online_status(
+        create_character_online_status(
             character=character,
             last_login=last_login,
             last_logout=last_login + dt.timedelta(hours=4),
@@ -120,7 +120,7 @@ class TestCheckInactivityForUser(NoSocketsTestCase):
         user = UserMainRequestorFactory()
         character = create_character_from_user(user=user)
         last_login = now() - dt.timedelta(days=4)
-        create_online_status(
+        create_character_online_status(
             character=character,
             last_login=last_login,
             last_logout=last_login + dt.timedelta(hours=4),
@@ -142,7 +142,7 @@ class TestCheckInactivityForUser(NoSocketsTestCase):
         user = UserMainRequestorFactory()
         character = create_character_from_user(user=user)
         last_login = now() - dt.timedelta(days=4)
-        create_online_status(
+        create_character_online_status(
             character=character,
             last_login=last_login,
             last_logout=last_login + dt.timedelta(hours=4),
