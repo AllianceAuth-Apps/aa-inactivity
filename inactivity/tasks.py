@@ -56,7 +56,7 @@ def check_inactivity():
 @shared_task
 def check_inactivity_for_user(user_pk: int):
     """Perform inactivity checks for given user."""
-    today = now().date()
+    today = now().replace(hour=0, minute=0, second=0, microsecond=0)
     user = User.objects.get(pk=user_pk)
     if not (
         user.leave_of_absence_requests.filter(
@@ -80,8 +80,10 @@ def check_inactivity_for_user(user_pk: int):
             pinged = InactivityPing.objects.filter(
                 user__pk=user_pk, config=config
             ).exists()
+
             if active:
                 InactivityPing.objects.filter(user__pk=user_pk, config=config).delete()
+
             if not active and registered and not pinged and not excused:
                 last_login_at = characters.aggregate(
                     Max("online_status__last_login")

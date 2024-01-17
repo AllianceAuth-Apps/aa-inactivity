@@ -1,5 +1,7 @@
 """Admin site for Inactivity."""
 
+# pylint: disable = missing-class-docstring, missing-function-docstring
+
 from django.conf import settings
 from django.contrib import admin
 

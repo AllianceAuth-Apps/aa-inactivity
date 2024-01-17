@@ -1,9 +1,18 @@
 """Managers for Inactivity."""
 
+# pylint: disable = missing-class-docstring
+
+from __future__ import annotations
+
+from typing import TYPE_CHECKING
+
 from django.contrib.auth.models import User
 from django.db import models
 from django.db.models import Case, Q, Value, When
 from django.utils.timezone import now
+
+if TYPE_CHECKING:
+    from .models import LeaveOfAbsence, Webhook
 
 
 class LeaveOfAbsenceQuerySet(models.QuerySet):
@@ -61,7 +70,9 @@ class WebhookQueryset(models.QuerySet):
 
 
 class WebhookManagerBase(models.Manager):
-    def send_message_to_active_webhooks(self, loa, notif_type, message):
+    def send_message_to_active_webhooks(
+        self, loa: LeaveOfAbsence, notif_type: Webhook.NotificationType, message: str
+    ):
         """Send a message to all active webhooks."""
         webhooks = self.relevant_for_user(loa.user).filter(
             is_active=True, notification_types__contains=notif_type
