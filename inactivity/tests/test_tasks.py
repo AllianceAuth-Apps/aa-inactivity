@@ -128,7 +128,7 @@ class TestCheckInactivityForUser(NoSocketsTestCase):
         LeaveOfAbsenceFactory(
             user=user,
             start=last_login,
-            end=now() + dt.timedelta(days=7),
+            end=now().date() + dt.timedelta(days=7),
             is_approved=True,
         )
         InactivityPingConfigFactory(days=3)
@@ -153,6 +153,50 @@ class TestCheckInactivityForUser(NoSocketsTestCase):
         check_inactivity_for_user(user_pk=user.pk)
         # then
         self.assertFalse(mock_send_inactivity_ping.apply_async.called)
+
+    def test_should_ping_when_existing_loa_expired(self, mock_send_inactivity_ping):
+        # given
+        user = UserMainRequestorFactory()
+        character = create_character_from_user(user=user)
+        last_login = now() - dt.timedelta(days=4)
+        create_character_online_status(
+            character=character,
+            last_login=last_login,
+            last_logout=last_login + dt.timedelta(hours=4),
+        )
+        LeaveOfAbsenceFactory(
+            user=user,
+            start=now().date() - dt.timedelta(days=14),
+            end=now().date() - dt.timedelta(days=7),
+            is_approved=True,
+        )
+        InactivityPingConfigFactory(days=3)
+        # when
+        check_inactivity_for_user(user_pk=user.pk)
+        # then
+        self.assertTrue(mock_send_inactivity_ping.apply_async.called)
+
+    def test_should_ping_when_loa_not_approved_yet(self, mock_send_inactivity_ping):
+        # given
+        user = UserMainRequestorFactory()
+        character = create_character_from_user(user=user)
+        last_login = now() - dt.timedelta(days=4)
+        create_character_online_status(
+            character=character,
+            last_login=last_login,
+            last_logout=last_login + dt.timedelta(hours=4),
+        )
+        LeaveOfAbsenceFactory(
+            user=user,
+            start=last_login,
+            end=now().date() + dt.timedelta(days=7),
+            is_approved=False,
+        )
+        InactivityPingConfigFactory(days=3)
+        # when
+        check_inactivity_for_user(user_pk=user.pk)
+        # then
+        self.assertTrue(mock_send_inactivity_ping.apply_async.called)
 
 
 @patch(TASKS_PATH + ".check_inactivity_for_user", spec=True)

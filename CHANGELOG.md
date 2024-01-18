@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [Unreleased] - yyyy-mm-dd
 
+## [1.1.1] - 2024-01-18
+
+### Fixed
+
+- TypeError: can't compare datetime.datetime to datetime.date (#6)
+
 ## [1.1.0] - 2024-01-17
 
 ### Changed
