@@ -56,46 +56,51 @@ def check_inactivity():
 @shared_task
 def check_inactivity_for_user(user_pk: int):
     """Perform inactivity checks for given user."""
-    today = now().replace(hour=0, minute=0, second=0, microsecond=0)
     user = User.objects.get(pk=user_pk)
-    if not (
-        user.leave_of_absence_requests.filter(
-            Q(start__lt=today), Q(end=None) | Q(end__gt=today), ~Q(approver=None)
-        ).exists()
-    ):
-        last_loa = (
-            user.leave_of_absence_requests.filter(Q(end__lt=today), ~Q(approver=None))
-            .order_by("-end")
-            .first()
+    today = dt.date.today()
+
+    has_active_loa = user.leave_of_absence_requests.filter(
+        Q(start__lt=today), Q(end=None) | Q(end__gt=today), ~Q(approver=None)
+    ).exists()
+    if has_active_loa:
+        return
+
+    last_loa = (
+        user.leave_of_absence_requests.filter(Q(end__lt=today), ~Q(approver=None))
+        .order_by("-end")
+        .first()
+    )
+    for config in InactivityPingConfig.objects.relevant_for_user(user):
+        threshold_date = today - dt.timedelta(days=config.days)
+        threshold_datetime = dt.datetime.combine(
+            date=threshold_date, time=dt.datetime.min.time(), tzinfo=dt.timezone.utc
         )
-        for config in InactivityPingConfig.objects.relevant_for_user(user):
-            threshold_date = today - dt.timedelta(days=config.days)
-            characters = Character.objects.owned_by_user(user)
-            registered = characters.exists()
-            active = characters.filter(
-                Q(online_status__last_login__gt=threshold_date)
-                | Q(online_status__last_logout__gt=threshold_date),
-            ).exists()
-            excused = last_loa and (not last_loa.end or threshold_date < last_loa.end)
-            pinged = InactivityPing.objects.filter(
-                user__pk=user_pk, config=config
-            ).exists()
+        characters = Character.objects.owned_by_user(user)
 
-            if active:
-                InactivityPing.objects.filter(user__pk=user_pk, config=config).delete()
+        is_active = characters.filter(
+            Q(online_status__last_login__gt=threshold_datetime)
+            | Q(online_status__last_logout__gt=threshold_datetime),
+        ).exists()
+        if is_active:
+            InactivityPing.objects.filter(user__pk=user_pk, config=config).delete()
 
-            if not active and registered and not pinged and not excused:
-                last_login_at = characters.aggregate(
-                    Max("online_status__last_login")
-                ).get("online_status__last_login__max")
-                send_inactivity_ping.apply_async(
-                    kwargs={
-                        "user_pk": user_pk,
-                        "config_pk": config.pk,
-                        "last_login_at": last_login_at,
-                    },
-                    priority=INACTIVITY_TASKS_DEFAULT_PRIORITY,
-                )
+        is_excused = last_loa and (not last_loa.end or threshold_date < last_loa.end)
+        was_pinged = InactivityPing.objects.filter(
+            user__pk=user_pk, config=config
+        ).exists()
+        is_registered = characters.exists()
+        if not is_active and is_registered and not was_pinged and not is_excused:
+            last_login_at = characters.aggregate(Max("online_status__last_login")).get(
+                "online_status__last_login__max"
+            )
+            send_inactivity_ping.apply_async(
+                kwargs={
+                    "user_pk": user_pk,
+                    "config_pk": config.pk,
+                    "last_login_at": last_login_at,
+                },
+                priority=INACTIVITY_TASKS_DEFAULT_PRIORITY,
+            )
 
 
 @shared_task
