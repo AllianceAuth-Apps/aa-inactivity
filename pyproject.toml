@@ -29,9 +29,9 @@ classifiers = [
     "Topic :: Internet :: WWW/HTTP :: Dynamic Content",
 ]
 dependencies = [
-    "aa-memberaudit>=2.8.1",
+    "aa-memberaudit>=3.7.0",
     "allianceauth-app-utils>=1.18",
-    "allianceauth>=3.7.0",
+    "allianceauth>=3",
     "django-multiselectfield",
     "py-cord>=2.4.1",
     "pytz>=2023.3",
