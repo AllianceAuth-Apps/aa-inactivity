@@ -7,6 +7,24 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [Unreleased] - yyyy-mm-dd
 
+## [2.0.0] - 2025-08-28
+
+### Update notes
+
+This release requires Member Audit 4.0 or greater.
+
+### Changed
+
+- BREAKING CHANGE: Support dropped for Member Audit below 4.0 / Alliance Auth below 4.0
+- Templates migrated to AA4 / Bootstrap 5 - Big thanks to @Cephas28 for the contribution!
+
+### Fixed
+
+- Error to add webhook and panel without debug mod (#10)
+- Internal Server Error - Unavailable static file (#9)
+- CI pipeline broke with AA 4.8 / 4.9
+- View tests broke with AA 4.9
+
 ## [1.1.1] - 2024-01-18
 
 ### Fixed

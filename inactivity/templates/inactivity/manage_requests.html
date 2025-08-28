@@ -8,10 +8,10 @@
     <!-- Nav tabs -->
     <ul id="myTabs" class="nav nav-tabs" role="tablist">
         <li class="nav-item" role="presentation">
-            <button class="nav-link" data-bs-target="#tab-pending-requests" aria-controls="tab-pending-requests" role="tab" data-bs-toggle="tab">
+            <button class="nav-link active" data-bs-target="#tab-pending-requests" aria-controls="tab-pending-requests" role="tab" data-bs-toggle="tab">
                 {% translate "Pending" %}
                 {% if unapproved_count > 0 %}
-                    <span class="badge badge-nav">{{ unapproved_count }}</span>
+                    <span class="badge text-bg-success badge-nav">{{ unapproved_count }}</span>
                 {% endif %}
             </button>
         </li>

@@ -18,7 +18,7 @@
             <a class="nav-link {% navactive request 'inactivity:manage_requests' %}" href="{% url 'inactivity:manage_requests' %}">
                 {% translate 'Manage requests' %}
                 {% if unapproved_count > 0 %}
-                    <span class="badge badge-nav">{{ unapproved_count }}</span>
+                    <span class="badge text-bg-success badge-nav">{{ unapproved_count }}</span>
                 {% endif %}
              </a>
         </li>

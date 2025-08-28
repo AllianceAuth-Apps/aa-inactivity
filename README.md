@@ -2,12 +2,14 @@
 
 This is a player activity monitoring plugin app for [Alliance Auth](https://gitlab.com/allianceauth/allianceauth) (AA).
 
-![release](https://img.shields.io/pypi/v/aa-inactivity?label=release)
-![License](https://img.shields.io/badge/license-GPL-green)
-![python](https://img.shields.io/pypi/pyversions/aa-inactivity)
-![django](https://img.shields.io/pypi/djversions/aa-inactivity?label=django)
-![pre-commit](https://img.shields.io/badge/pre--commit-enabled-brightgreen?logo=pre-commit&logoColor=white)
-![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)
+[![release](https://img.shields.io/pypi/v/aa-inactivity?label=release)](https://pypi.org/project/aa-inactivity/)
+[![python](https://img.shields.io/pypi/pyversions/aa-inactivity)](https://pypi.org/project/aa-inactivity/)
+[![django](https://img.shields.io/pypi/djversions/aa-inactivity?label=django)](https://pypi.org/project/aa-inactivity/)
+[![pipeline](https://gitlab.com/eclipse-expeditions/aa-inactivity/badges/master/pipeline.svg)](https://gitlab.com/eclipse-expeditions/aa-inactivity/-/pipelines)
+[![license](https://img.shields.io/badge/license-MIT-green)](https://gitlab.com/eclipse-expeditions/aa-inactivity/-/blob/master/LICENSE)
+[![pre-commit](https://img.shields.io/badge/pre--commit-enabled-brightgreen?logo=pre-commit&logoColor=white)](https://github.com/pre-commit/pre-commit)
+[![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
+[![chat](https://img.shields.io/discord/790364535294132234)](https://discord.gg/zmh52wnfvM)
 
 ## Content
 
@@ -53,7 +55,7 @@ This app needs [Member Audit](https://gitlab.com/ErikKalkoken/aa-memberaudit) to
 Make sure you are in the virtual environment (venv) of your Alliance Auth installation. Then install the newest release from PyPI:
 
 ```bash
-pip install aa-inactivity`
+pip install aa-inactivity
 ```
 
 ### Step 2 - Config

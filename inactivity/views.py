@@ -60,7 +60,7 @@ def my_open_requests_data(request: HttpRequest):
 @login_required
 @permission_required("inactivity.basic_access")
 def my_completed_requests_data(request: HttpRequest) -> JsonResponse:
-    """ "Render data view showing completed loa requests for current user."""
+    """Render data view showing completed loa requests for current user."""
     data = []
     for loa_request in (
         LeaveOfAbsence.objects.filter_processed()
