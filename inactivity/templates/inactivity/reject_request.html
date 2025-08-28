@@ -5,17 +5,16 @@
 {% load bootstrap %}
 
 {% block details %}
-    <div class="panel panel-primary">
-        <div class="panel-heading">
-            <h3 class="panel-title">{% translate "Deny Request" %}</h3>
+    <div class="card card-primary">
+        <div class="card-header">
         </div>
 
-        <div class="panel-body" style="min-height: 100px;">
+        <div class="card-body" style="min-height: 100px;">
             <form role="form" method="POST" action="{% url 'inactivity:deny_loa_request' loa_request.pk %}">
                 {% csrf_token %}
                 {{ form|bootstrap }}
                 <div class="form-group">
-                    <a class="btn btn-default" href="{% url 'inactivity:manage_requests' %}">{% translate "Cancel" %}</a>
+                    <a class="btn btn-secondary" href="{% url 'inactivity:manage_requests' %}">{% translate "Cancel" %}</a>
                     <div class="pull-right">
                         <button type="submit" class="btn btn-danger">Deny</button>
                     </div>
