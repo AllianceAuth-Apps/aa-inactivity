@@ -7,26 +7,26 @@
 
     <!-- Nav tabs -->
     <ul id="myTabs" class="nav nav-tabs" role="tablist">
-        <li role="presentation" class="active">
-            <a href="#tab-pending-requests" aria-controls="tab-pending-requests" role="tab" data-toggle="tab">
+        <li class="nav-item" role="presentation">
+            <button class="nav-link" data-bs-target="#tab-pending-requests" aria-controls="tab-pending-requests" role="tab" data-bs-toggle="tab">
                 {% translate "Pending" %}
                 {% if unapproved_count > 0 %}
                     <span class="badge badge-nav">{{ unapproved_count }}</span>
                 {% endif %}
-            </a>
+            </button>
         </li>
-        <li role="presentation" >
-            <a href="#tab-closed-requests" aria-controls="tab-closed-requests" role="tab" data-toggle="tab">
+        <li class="nav-item" role="presentation">
+            <button class="nav-link" data-bs-target="#tab-closed-requests" aria-controls="tab-closed-requests" role="tab" data-bs-toggle="tab">
                 {% translate "Closed" %}
-            </a>
+            </button>
         </li>
     </ul>
 
-    <div class="panel panel-default panel-tabs">
-        <div class="panel-body">
+    <div class="card  card-tabs">
+        <div class="card-body">
             <div class="tab-content">
 
-                <div role="tabpanel" class="tab-pane active" id="tab-pending-requests">
+                <div role="tabcard" class="tab-pane active" id="tab-pending-requests">
                     <div class="table-responsive">
                         <table id="table-pending-requests" style="width: 100%;" class="table table-striped">
                             <thead>
@@ -44,7 +44,7 @@
                     </div>
                 </div>
 
-                <div role="tabpanel" class="tab-pane" id="tab-closed-requests">
+                <div role="tabcard" class="tab-pane" id="tab-closed-requests">
                     <div class="table-responsive">
                         <table id="table-closed-requests" style="width: 100%;" class="table table-striped">
                             <thead>
@@ -72,8 +72,8 @@
 
 {% block extra_javascript %}
 
-    {% include 'bundles/datatables-js.html' %}
-    <script type="application/javascript" src="{% static 'memberaudit/vendor/datatables/plugins/filterDropDown.min.js' %}"></script>
+    {% include "bundles/datatables-js-bs5.html" %}
+    {% include "bundles/filterdropdown-js.html" %}
 
     <script>
         "use strict";
@@ -124,7 +124,8 @@
                             maxWidth: "12em"
                         }
                     ],
-                    bootstrap: true
+                    bootstrap: true,
+                    bootstrap_version: 5,
                 },
             });
 
@@ -171,7 +172,8 @@
                             maxWidth: "12em"
                         }
                     ],
-                    bootstrap: true
+                    bootstrap: true,
+                    bootstrap_version: 5,
                 },
 
             });
@@ -181,7 +183,7 @@
 {% endblock %}
 
 {% block extra_css %}
-    {% include 'bundles/datatables-css.html' %}
+    {% include 'bundles/datatables-css-bs5.html' %}
     <link rel="stylesheet" href="{% static 'inactivity/css/aa-bootstrap-fix.min.css' %}" type="text/css">
     <link rel="stylesheet" href="{% static 'inactivity/css/inactivity.css' %}" type="text/css">
     <link rel="stylesheet" href="{% static 'inactivity/css/manage_requests.css' %}" type="text/css">

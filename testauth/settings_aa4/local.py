@@ -50,6 +50,7 @@ DATABASES['default'] = {
 ESI_SSO_CLIENT_ID = "dummy"
 ESI_SSO_CLIENT_SECRET = "dummy"
 ESI_SSO_CALLBACK_URL = "http://localhost:8000"
+ESI_USER_CONTACT_EMAIL = os.environ.get("ESI_USER_CONTACT_EMAIL", "ci@example.com")
 
 # By default emails are validated before new users can log in.
 # It's recommended to use a free service like SparkPost or Elastic Email to send email.

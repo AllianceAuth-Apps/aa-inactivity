@@ -25,13 +25,14 @@ classifiers = [
     "Programming Language :: Python :: 3.9",
     "Programming Language :: Python :: 3.10",
     "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
     "Topic :: Internet :: WWW/HTTP",
     "Topic :: Internet :: WWW/HTTP :: Dynamic Content",
 ]
 dependencies = [
     "aa-memberaudit>=3.7.0",
     "allianceauth-app-utils>=1.18",
-    "allianceauth>=3",
+    "allianceauth>=4,<5",
     "django-multiselectfield",
     "py-cord>=2.4.1",
     "pytz>=2023.3",
