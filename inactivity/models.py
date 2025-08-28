@@ -241,12 +241,12 @@ class LeaveOfAbsence(models.Model):
 class Webhook(models.Model):
     "A webhook configuration to send message to."
 
-    class NotificationType(models.IntegerChoices):
+    class NotificationType(models.TextChoices):
         """A notification type."""
 
-        INACTIVE_USER = 1, "Inactive User"
-        LOA_NEW = 10, "Leave of Absence - Created"
-        LOA_APPROVED = 11, "Leave of Absence - Approved"
+        INACTIVE_USER = "1", "Inactive User"
+        LOA_NEW = "10", "Leave of Absence - Created"
+        LOA_APPROVED = "11", "Leave of Absence - Approved"
 
     class WebhookType(models.IntegerChoices):
         """A type of a webhook."""

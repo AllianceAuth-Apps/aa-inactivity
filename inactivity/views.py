@@ -238,9 +238,11 @@ def inactive_users_data(request: HttpRequest) -> JsonResponse:
             "pk": obj.pk,
             "user_html": {"display": user_obj.html, "sort": user_obj.name},
             "last_login_at": {
-                "display": humanize.naturaltime(obj.last_login_at)
-                if obj.last_login_at
-                else "?",
+                "display": (
+                    humanize.naturaltime(obj.last_login_at)
+                    if obj.last_login_at
+                    else "?"
+                ),
                 "sort": obj.last_login_at.isoformat() if obj.last_login_at else None,
             },
             "policy": obj.config.name,
@@ -248,9 +250,9 @@ def inactive_users_data(request: HttpRequest) -> JsonResponse:
                 "display": humanize.naturaltime(obj.timestamp),
                 "sort": obj.timestamp.isoformat(),
             },
-            "corporation_name": user_obj.character.corporation_name
-            if user_obj.character
-            else "",
+            "corporation_name": (
+                user_obj.character.corporation_name if user_obj.character else ""
+            ),
         }
         data.append(row)
     return JsonResponse({"data": data})

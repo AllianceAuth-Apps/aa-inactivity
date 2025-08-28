@@ -1,4 +1,4 @@
-""""Activity monitoring app for Alliance Auth."""
+""" "Activity monitoring app for Alliance Auth."""
 
 # pylint: disable = invalid-name
 default_app_config = "inactivity.apps.InactivityConfig"
