@@ -110,11 +110,11 @@ def send_inactivity_ping(user_pk: int, config_pk: int, last_login_at: dt.datetim
     user = User.objects.get(pk=user_pk)
     notify.danger(user, title="Inactivity notification", message=config.text)
     InactivityPing.objects.create(config=config, user=user, last_login_at=last_login_at)
-    for webhook in Webhook.objects.filter(
+    relevant_webhooks = Webhook.objects.filter(
         Q(ping_configs=config) | Q(ping_configs=None),
         Q(is_active=True),
-        notification_types__contains=Webhook.NotificationType.INACTIVE_USER,
-    ):
+    ).filter_notification_type(Webhook.NotificationType.INACTIVE_USER)
+    for webhook in relevant_webhooks:
         duration = humanize.naturaldelta(now() - last_login_at)
         message = _(
             "**%(user_name)s** has been inactive for **%(duration)s** "
@@ -140,17 +140,17 @@ def send_message_to_webhook(self: Task, webhook_pk: int, content: str):
         try:
             with cache.lock(f"inactivity-lock-webhook-{webhook.pk}"):
                 hook.send(content=content)
-        except discord.HTTPException as ex:
-            if ex.status == HTTPStatus.TOO_MANY_REQUESTS:
+        except discord.HTTPException as exc:
+            if exc.status == HTTPStatus.TOO_MANY_REQUESTS:
                 try:
-                    retry_after = int(ex.response.headers["Retry-After"])
+                    retry_after = int(exc.response.headers["Retry-After"])
                 except KeyError:
                     retry_after = 60
                 logger.error(
                     "%s: Rate limited. Trying again in %s seconds. Error: %s",
                     webhook,
                     retry_after,
-                    ex.response.text,
+                    exc.response.text,
                 )
-                raise self.retry(countdown=retry_after) from ex
-            raise ex
+                raise self.retry(countdown=retry_after)
+            raise exc

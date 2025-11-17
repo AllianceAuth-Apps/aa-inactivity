@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [Unreleased] - yyyy-mm-dd
 
+## [2.0.1] - 2025-11-17
+
+### Fixed
+
+- Webhooks still sending inactivity pings even when disabled
+
 ## [2.0.0] - 2025-08-28
 
 ### Update notes

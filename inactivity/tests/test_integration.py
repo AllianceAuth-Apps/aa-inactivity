@@ -12,8 +12,9 @@ from django.utils.timezone import now
 
 from app_utils.testing import NoSocketsTestCase
 
-from ..models import LeaveOfAbsence, Webhook
-from ..tasks import check_inactivity
+from inactivity.models import LeaveOfAbsence, Webhook
+from inactivity.tasks import check_inactivity
+
 from .factories import (
     GroupFactory,
     InactivityPingConfigFactory,

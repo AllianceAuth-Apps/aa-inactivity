@@ -8,7 +8,7 @@ from django.utils.timezone import now
 
 from app_utils.testing import NoSocketsTestCase, json_response_to_python
 
-from ..views import (
+from inactivity.views import (
     create_loa_request,
     inactive_users,
     inactive_users_data,
@@ -17,6 +17,7 @@ from ..views import (
     manage_requests,
     my_requests,
 )
+
 from .factories import (
     InactivityPingFactory,
     LeaveOfAbsenceFactory,
