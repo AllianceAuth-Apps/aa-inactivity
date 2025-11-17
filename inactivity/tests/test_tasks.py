@@ -13,13 +13,14 @@ from django.utils.timezone import now
 
 from app_utils.testing import NoSocketsTestCase
 
-from ..models import InactivityPing
-from ..tasks import (
+from inactivity.models import InactivityPing, Webhook
+from inactivity.tasks import (
     check_inactivity,
     check_inactivity_for_user,
     send_inactivity_ping,
     send_message_to_webhook,
 )
+
 from .factories import (
     InactivityPingConfigFactory,
     InactivityPingFactory,
@@ -35,13 +36,16 @@ TASKS_PATH = "inactivity.tasks"
 @patch(TASKS_PATH + ".send_message_to_webhook.apply_async", spec=True)
 @patch(TASKS_PATH + ".notify.danger", spec=True)
 class TestSendInactivityPing(NoSocketsTestCase):
-    def test_should_ping_user_and_webhook(
+    def test_should_ping_user_and_webhook_when_configured_for_inactivity(
         self, mock_notify_user, mock_send_message_to_webhook
     ):
         # given
         config = InactivityPingConfigFactory()
         user = UserMainRequestorFactory()
-        WebhookFactory()
+        WebhookFactory(
+            ping_configs=[config],
+            notification_types=[Webhook.NotificationType.INACTIVE_USER],
+        )
         # when
         send_inactivity_ping(user_pk=user.pk, config_pk=config.pk, last_login_at=now())
         # then
@@ -55,6 +59,49 @@ class TestSendInactivityPing(NoSocketsTestCase):
                 timestamp__gte=now() - dt.timedelta(seconds=10),
             ).exists()
         )
+
+    def test_should_not_ping_webhooks_with_correct_configuration(
+        self, _, mock_send_message_to_webhook
+    ):
+        # given
+        config = InactivityPingConfigFactory()
+        user = UserMainRequestorFactory()
+        # Webhooks to ping
+        hook_1 = WebhookFactory(
+            is_active=True,
+            ping_configs=[config],
+            notification_types=[Webhook.NotificationType.INACTIVE_USER],
+        )
+        hook_2 = WebhookFactory(
+            is_active=True,
+            notification_types=[Webhook.NotificationType.INACTIVE_USER],
+        )
+        hook_3 = WebhookFactory(
+            is_active=True,
+            notification_types=[
+                Webhook.NotificationType.INACTIVE_USER,
+                Webhook.NotificationType.LOA_APPROVED,
+                Webhook.NotificationType.LOA_NEW,
+            ],
+        )
+        # Webhooks not to ping
+        WebhookFactory(
+            is_active=True,
+            ping_configs=[config],
+            notification_types=[Webhook.NotificationType.LOA_APPROVED],
+        )
+        WebhookFactory(
+            is_active=False,
+            notification_types=[Webhook.NotificationType.INACTIVE_USER],
+        )
+        # when
+        send_inactivity_ping(user_pk=user.pk, config_pk=config.pk, last_login_at=now())
+        # then
+        called_webhook_pks = {
+            x[1]["kwargs"]["webhook_pk"]
+            for x in mock_send_message_to_webhook.call_args_list
+        }
+        self.assertEqual(called_webhook_pks, {hook_1.pk, hook_2.pk, hook_3.pk})
 
     def test_should_ping_user_only(
         self, mock_notify_user, mock_send_message_to_webhook

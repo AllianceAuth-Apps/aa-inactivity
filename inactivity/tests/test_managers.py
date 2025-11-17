@@ -1,6 +1,7 @@
 from app_utils.testing import NoSocketsTestCase
 
-from ..models import InactivityPingConfig, LeaveOfAbsence, Webhook
+from inactivity.models import InactivityPingConfig, LeaveOfAbsence, Webhook
+
 from .factories import (
     GroupFactory,
     InactivityPingConfigFactory,
@@ -63,3 +64,37 @@ class TestWebhookManager(NoSocketsTestCase):
         # then
         result_pks = set(result.values_list("pk", flat=True))
         self.assertSetEqual(result_pks, {webhook.pk})
+
+
+class TestWebhookQuerySet(NoSocketsTestCase):
+    def test_should_filter_notification_type(self):
+        hook_1 = WebhookFactory(
+            notification_types=[Webhook.NotificationType.INACTIVE_USER],
+        )
+        hook_2 = WebhookFactory(
+            notification_types=[
+                Webhook.NotificationType.INACTIVE_USER,
+                Webhook.NotificationType.LOA_APPROVED,
+            ],
+        )
+        hook_3 = WebhookFactory(
+            notification_types=[
+                Webhook.NotificationType.LOA_APPROVED,
+                Webhook.NotificationType.INACTIVE_USER,
+            ],
+        )
+        WebhookFactory(
+            notification_types=[
+                Webhook.NotificationType.LOA_APPROVED,
+                Webhook.NotificationType.LOA_NEW,
+            ],
+        )
+        WebhookFactory(
+            notification_types=[],
+        )
+        qs = Webhook.objects.filter_notification_type(
+            Webhook.NotificationType.INACTIVE_USER
+        )
+        got = set(qs.values_list("pk", flat=True))
+        want = {hook_1.pk, hook_2.pk, hook_3.pk}
+        self.assertEqual(got, want)

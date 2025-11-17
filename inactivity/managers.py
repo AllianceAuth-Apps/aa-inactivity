@@ -4,6 +4,7 @@
 
 from __future__ import annotations
 
+import re
 from typing import TYPE_CHECKING
 
 from django.contrib.auth.models import User
@@ -68,14 +69,22 @@ class WebhookQueryset(models.QuerySet):
         configs = list(InactivityPingConfig.objects.relevant_for_user(user))
         return self.filter(Q(ping_configs__in=configs) | Q(ping_configs=None))
 
+    def filter_notification_type(self, notif_type: Webhook.NotificationType):
+        """Return Queryset with a filter for a notification type."""
+        return self.filter(
+            notification_types__regex=rf"(^|,){re.escape(notif_type)}(,|$)"
+        )
+
 
 class WebhookManagerBase(models.Manager):
     def send_message_to_active_webhooks(
         self, loa: LeaveOfAbsence, notif_type: Webhook.NotificationType, message: str
     ):
         """Send a message to all active webhooks."""
-        webhooks = self.relevant_for_user(loa.user).filter(
-            is_active=True, notification_types__contains=notif_type
+        webhooks = (
+            self.relevant_for_user(loa.user)
+            .filter(is_active=True)
+            .filter_notification_type(notif_type)
         )
         for webhook in webhooks:
             webhook.send_message(message)
