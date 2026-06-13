@@ -9,9 +9,16 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [3.0.0] - tbd
 
+This release adds support for Alliance Auth V5 and contains breaking changes.
+
 ### Changed
 
 - BREAKING CHANGE: Now requires Python 3.10+
+- BREAKING CHANGE: Now requires Member Audit 5+
+- Removed logger tag
+- Modernized test suite
+- Added support for AA5
+- Updated dependencies
 
 ## [2.0.1] - 2025-11-17
 
