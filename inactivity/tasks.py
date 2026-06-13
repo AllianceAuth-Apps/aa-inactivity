@@ -17,13 +17,11 @@ from django.utils.translation import gettext_lazy as _
 
 from allianceauth.notifications import notify
 from allianceauth.services.hooks import get_extension_logger
-from app_utils.logging import LoggerAddTag
 
-from inactivity import __title__
 from inactivity.app_settings import INACTIVITY_TASKS_DEFAULT_PRIORITY
 from inactivity.models import InactivityPing, InactivityPingConfig, Webhook
 
-logger = LoggerAddTag(get_extension_logger(__name__), __title__)
+logger = get_extension_logger(__name__)
 
 
 class ModifiedSession(requests.Session):
