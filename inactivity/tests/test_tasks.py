@@ -20,8 +20,7 @@ from inactivity.tasks import (
     send_inactivity_ping,
     send_message_to_webhook,
 )
-
-from .factories import (
+from inactivity.tests.factories import (
     InactivityPingConfigFactory,
     InactivityPingFactory,
     LeaveOfAbsenceFactory,

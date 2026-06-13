@@ -14,8 +14,7 @@ from app_utils.testing import NoSocketsTestCase
 
 from inactivity.models import LeaveOfAbsence, Webhook
 from inactivity.tasks import check_inactivity
-
-from .factories import (
+from inactivity.tests.factories import (
     GroupFactory,
     InactivityPingConfigFactory,
     LeaveOfAbsenceFactory,

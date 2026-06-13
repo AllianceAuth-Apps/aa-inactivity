@@ -19,9 +19,9 @@ from allianceauth.notifications import notify
 from allianceauth.services.hooks import get_extension_logger
 from app_utils.logging import LoggerAddTag
 
-from . import __title__
-from .app_settings import INACTIVITY_TASKS_DEFAULT_PRIORITY
-from .models import InactivityPing, InactivityPingConfig, Webhook
+from inactivity import __title__
+from inactivity.app_settings import INACTIVITY_TASKS_DEFAULT_PRIORITY
+from inactivity.models import InactivityPing, InactivityPingConfig, Webhook
 
 logger = LoggerAddTag(get_extension_logger(__name__), __title__)
 
