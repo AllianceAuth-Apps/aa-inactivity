@@ -7,7 +7,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [Unreleased] - yyyy-mm-dd
 
-## [3.0.0] - tbd
+## [3.0.0b1] - 2026-06-21
 
 This release adds support for Alliance Auth V5 and contains breaking changes.
 
