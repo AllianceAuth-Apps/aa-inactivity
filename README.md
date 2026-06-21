@@ -86,5 +86,5 @@ This app uses permissions to control access to features.
 
 Name | Purpose | Code
 -- | -- | --
-general - Can access this app | Enabling the app for a user. This permission should be enabled for everyone who is allowed to use the app |  `basic_access`
-general - Can manage leave of absence requests | Allows a user to approve/deny loa requests. |  `manage_leave`
+general - Can access this app | Enabling the app for a user. This permission should be enabled for everyone who is allowed to use the app | `basic_access`
+general - Can manage leave of absence requests | Allows a user to approve/deny loa requests. | `manage_leave`
