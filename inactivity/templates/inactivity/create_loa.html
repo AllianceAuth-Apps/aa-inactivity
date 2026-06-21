@@ -2,7 +2,7 @@
 {% load i18n %}
 {% load humanize %}
 {% load static %}
-{% load bootstrap %}
+{% load django_bootstrap5 %}
 
 {% block details %}
     <div class="card card-primary">
@@ -10,7 +10,7 @@
             <h5 class="card-title">Create Request</h5>
             <form role="form" method="POST" action="{% url 'inactivity:create_loa_request' %}">
                 {% csrf_token %}
-                {{ form|bootstrap }}
+                {% bootstrap_form form %}
                 <div class="d-flex justify-content-between">
                     <a class="btn btn-secondary float-left" href="{% url 'inactivity:my_requests' %}">
                         {% translate "Cancel" %}
