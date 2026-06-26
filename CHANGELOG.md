@@ -7,6 +7,19 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [Unreleased] - yyyy-mm-dd
 
+## [3.0.0] - 2026-06-26
+
+This release adds support for Alliance Auth V5 and contains breaking changes.
+
+### Changed
+
+- BREAKING CHANGE: Now requires Python 3.10+
+- BREAKING CHANGE: Now requires Member Audit 5+
+- Removed logger tag
+- Modernized test suite
+- Added support for AA5
+- Updated dependencies
+
 ## [3.0.0b1] - 2026-06-21
 
 This release adds support for Alliance Auth V5 and contains breaking changes.
