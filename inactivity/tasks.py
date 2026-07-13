@@ -11,7 +11,7 @@ from memberaudit.models import Character
 
 from django.contrib.auth.models import User
 from django.core.cache import cache
-from django.db.models import Case, F, Max, Q, QuerySet, Value, When
+from django.db.models import Max, Q, QuerySet
 from django.utils.timezone import now
 from django.utils.translation import gettext_lazy as _
 
@@ -19,6 +19,7 @@ from allianceauth.notifications import notify
 from allianceauth.services.hooks import get_extension_logger
 
 from inactivity.app_settings import INACTIVITY_TASKS_DEFAULT_PRIORITY
+from inactivity.core import check_user_active
 from inactivity.models import InactivityPing, InactivityPingConfig, Webhook
 
 logger = get_extension_logger(__name__)
@@ -70,7 +71,7 @@ def check_inactivity_for_user(user_pk: int):
     )
     for config in InactivityPingConfig.objects.relevant_for_user(user):
         threshold_date = today - dt.timedelta(days=config.days)
-        is_active = _is_user_active(user=user, threshold_date=threshold_date)
+        is_active = check_user_active(user=user, threshold_date=threshold_date)
         if is_active:
             InactivityPing.objects.filter(user__pk=user_pk, config=config).delete()
 
@@ -94,35 +95,6 @@ def check_inactivity_for_user(user_pk: int):
                 },
                 priority=INACTIVITY_TASKS_DEFAULT_PRIORITY,
             )
-
-
-def _is_user_active(user: User, threshold_date: dt.date) -> bool:
-    """Report whether a user is active."""
-    threshold_datetime = dt.datetime.combine(
-        date=threshold_date, time=dt.datetime.min.time(), tzinfo=dt.timezone.utc
-    )
-    characters: QuerySet[Character] = Character.objects.owned_by_user(user)
-    annotated = characters.annotate(
-        is_active=Case(
-            When(
-                Q(online_status__last_login__gt=threshold_datetime)
-                | Q(online_status__last_logout__gt=threshold_datetime),
-                then=Value(True),
-            ),
-            When(
-                Q(online_status__last_login__isnull=False)
-                & Q(online_status__last_logout__lt=F("online_status__last_login")),
-                then=Value(True),
-            ),
-            When(
-                Q(online_status__last_login__isnull=False)
-                & Q(online_status__last_logout__isnull=True),
-                then=Value(True),
-            ),
-            default=Value(False),
-        )
-    )
-    return annotated.filter(is_active=True).exists()
 
 
 @shared_task
