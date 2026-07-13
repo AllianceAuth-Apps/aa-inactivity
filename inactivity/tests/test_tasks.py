@@ -1,5 +1,6 @@
 import datetime as dt
 from http import HTTPStatus
+from typing import NamedTuple, Optional
 from unittest.mock import patch
 
 import discord
@@ -13,13 +14,8 @@ from django.utils.timezone import now
 
 from app_utils.testing import NoSocketsTestCase
 
+from inactivity import tasks
 from inactivity.models import InactivityPing, Webhook
-from inactivity.tasks import (
-    check_inactivity,
-    check_inactivity_for_user,
-    send_inactivity_ping,
-    send_message_to_webhook,
-)
 from inactivity.tests.factories import (
     InactivityPingConfigFactory,
     InactivityPingFactory,
@@ -45,8 +41,12 @@ class TestSendInactivityPing(NoSocketsTestCase):
             ping_configs=[config],
             notification_types=[Webhook.NotificationType.INACTIVE_USER],
         )
+
         # when
-        send_inactivity_ping(user_pk=user.pk, config_pk=config.pk, last_login_at=now())
+        tasks.send_inactivity_ping(
+            user_pk=user.pk, config_pk=config.pk, last_login_at=now()
+        )
+
         # then
         args, _ = mock_notify_user.call_args
         self.assertEqual(args[0], user)
@@ -93,8 +93,12 @@ class TestSendInactivityPing(NoSocketsTestCase):
             is_active=False,
             notification_types=[Webhook.NotificationType.INACTIVE_USER],
         )
+
         # when
-        send_inactivity_ping(user_pk=user.pk, config_pk=config.pk, last_login_at=now())
+        tasks.send_inactivity_ping(
+            user_pk=user.pk, config_pk=config.pk, last_login_at=now()
+        )
+
         # then
         called_webhook_pks = {
             x[1]["kwargs"]["webhook_pk"]
@@ -108,8 +112,12 @@ class TestSendInactivityPing(NoSocketsTestCase):
         # given
         config = InactivityPingConfigFactory()
         user = UserMainRequestorFactory()
+
         # when
-        send_inactivity_ping(user_pk=user.pk, config_pk=config.pk, last_login_at=now())
+        tasks.send_inactivity_ping(
+            user_pk=user.pk, config_pk=config.pk, last_login_at=now()
+        )
+
         # then
         args, _ = mock_notify_user.call_args
         self.assertEqual(args[0], user)
@@ -129,8 +137,10 @@ class TestCheckInactivityForUser(NoSocketsTestCase):
             last_logout=last_login + dt.timedelta(hours=4),
         )
         InactivityPingConfigFactory(days=3)
+
         # when
-        check_inactivity_for_user(user_pk=user.pk)
+        tasks.check_inactivity_for_user(user_pk=user.pk)
+
         # then
         self.assertTrue(mock_send_inactivity_ping.apply_async.called)
 
@@ -145,8 +155,10 @@ class TestCheckInactivityForUser(NoSocketsTestCase):
             last_logout=last_login + dt.timedelta(hours=4),
         )
         InactivityPingConfigFactory(days=3)
+
         # when
-        check_inactivity_for_user(user_pk=user.pk)
+        tasks.check_inactivity_for_user(user_pk=user.pk)
+
         # then
         self.assertFalse(mock_send_inactivity_ping.apply_async.called)
 
@@ -156,8 +168,10 @@ class TestCheckInactivityForUser(NoSocketsTestCase):
         # given
         user = UserMainRequestorFactory()
         InactivityPingConfigFactory(days=3)
+
         # when
-        check_inactivity_for_user(user_pk=user.pk)
+        tasks.check_inactivity_for_user(user_pk=user.pk)
+
         # then
         self.assertFalse(mock_send_inactivity_ping.apply_async.called)
 
@@ -178,8 +192,10 @@ class TestCheckInactivityForUser(NoSocketsTestCase):
             is_approved=True,
         )
         InactivityPingConfigFactory(days=3)
+
         # when
-        check_inactivity_for_user(user_pk=user.pk)
+        tasks.check_inactivity_for_user(user_pk=user.pk)
+
         # then
         self.assertFalse(mock_send_inactivity_ping.apply_async.called)
 
@@ -195,8 +211,10 @@ class TestCheckInactivityForUser(NoSocketsTestCase):
         )
         config = InactivityPingConfigFactory(days=3)
         InactivityPingFactory(user=user, config=config)
+
         # when
-        check_inactivity_for_user(user_pk=user.pk)
+        tasks.check_inactivity_for_user(user_pk=user.pk)
+
         # then
         self.assertFalse(mock_send_inactivity_ping.apply_async.called)
 
@@ -217,8 +235,10 @@ class TestCheckInactivityForUser(NoSocketsTestCase):
             is_approved=True,
         )
         InactivityPingConfigFactory(days=3)
+
         # when
-        check_inactivity_for_user(user_pk=user.pk)
+        tasks.check_inactivity_for_user(user_pk=user.pk)
+
         # then
         self.assertTrue(mock_send_inactivity_ping.apply_async.called)
 
@@ -239,8 +259,10 @@ class TestCheckInactivityForUser(NoSocketsTestCase):
             is_approved=False,
         )
         InactivityPingConfigFactory(days=3)
+
         # when
-        check_inactivity_for_user(user_pk=user.pk)
+        tasks.check_inactivity_for_user(user_pk=user.pk)
+
         # then
         self.assertTrue(mock_send_inactivity_ping.apply_async.called)
 
@@ -255,8 +277,10 @@ class TestCheckInactivity(NoSocketsTestCase):
         user = UserMainRequestorFactory()
         CharacterFactory(user=user)
         UserMainRequestorFactory()  # will not be checked
+
         # when
-        check_inactivity()
+        tasks.check_inactivity()
+
         # then
         users_pks_checked = {
             obj[1]["kwargs"]["user_pk"]
@@ -269,8 +293,10 @@ class TestCheckInactivity(NoSocketsTestCase):
         user = UserMainRequestorFactory()
         CharacterFactory(user=user)
         UserMainRequestorFactory()  # will not be checked
+
         # when
-        check_inactivity()
+        tasks.check_inactivity()
+
         # then
         users_pks_checked = {
             obj[1]["kwargs"]["user_pk"]
@@ -294,8 +320,10 @@ class TestSendMessageToWebhook(NoSocketsTestCase):
     def test_send_message(self, mock_send, mock_cache_lock):
         # given
         webhook = WebhookFactory()
+
         # when
-        send_message_to_webhook(webhook.pk, "dummy")
+        tasks.send_message_to_webhook(webhook.pk, "dummy")
+
         # then
         self.assertTrue(mock_send.called)
 
@@ -310,9 +338,10 @@ class TestSendMessageToWebhook(NoSocketsTestCase):
         )
         mock_send.side_effect = my_exception
         webhook = WebhookFactory()
+
         # when/then
         with self.assertRaises(CeleryRetry):
-            send_message_to_webhook(webhook.pk, "dummy")
+            tasks.send_message_to_webhook(webhook.pk, "dummy")
 
     def test_raise_error_when_other_http_error(self, mock_send, mock_cache_lock):
         # given
@@ -322,6 +351,99 @@ class TestSendMessageToWebhook(NoSocketsTestCase):
         )
         mock_send.side_effect = my_exception
         webhook = WebhookFactory()
+
         # when/then
         with self.assertRaises(discord.HTTPException):
-            send_message_to_webhook(webhook.pk, "dummy")
+            tasks.send_message_to_webhook(webhook.pk, "dummy")
+
+
+class TestIsUserActive(NoSocketsTestCase):
+    def test_should_report_whether_user_is_active(self):
+        # given
+        class Case(NamedTuple):
+            name: str
+            last_login: Optional[dt.datetime]
+            last_logout: Optional[dt.datetime]
+            want: bool
+
+        _now = now()
+        cases = [
+            Case(
+                name="logged out after threshold",
+                last_login=_now - dt.timedelta(hours=24),
+                last_logout=_now - dt.timedelta(hours=20),
+                want=True,
+            ),
+            Case(
+                name="logged in recently, is still online and no logout data",
+                last_login=_now - dt.timedelta(hours=24),
+                last_logout=None,
+                want=True,
+            ),
+            Case(
+                name="logged in recently, still online and recent logout",
+                last_login=_now - dt.timedelta(hours=24),
+                last_logout=_now - dt.timedelta(days=2),
+                want=True,
+            ),
+            Case(
+                name="logged in recently, still online and last logout before threshold",
+                last_login=_now - dt.timedelta(hours=24),
+                last_logout=_now - dt.timedelta(days=4),
+                want=True,
+            ),
+            Case(
+                name="logged out after threshold and no login data",
+                last_login=None,
+                last_logout=_now - dt.timedelta(days=1),
+                want=True,
+            ),
+            Case(
+                name="logged out before threshold and has login data",
+                last_login=_now - dt.timedelta(days=5),
+                last_logout=_now - dt.timedelta(days=5) + dt.timedelta(hours=4),
+                want=False,
+            ),
+            Case(
+                name="logged out before threshold and no login data",
+                last_login=None,
+                last_logout=_now - dt.timedelta(days=5) + dt.timedelta(hours=4),
+                want=False,
+            ),
+            Case(
+                name="no login data",
+                last_login=None,
+                last_logout=None,
+                want=False,
+            ),
+            Case(
+                name="logged in before threshold and no logout data",
+                last_login=_now - dt.timedelta(days=4),
+                last_logout=None,
+                want=True,
+            ),
+            Case(
+                name="logged in before threshold and last logout earlier",
+                last_login=_now - dt.timedelta(days=4),
+                last_logout=_now - dt.timedelta(days=10),
+                want=True,
+            ),
+        ]
+
+        threshold_date = _now.date() - dt.timedelta(days=3)
+
+        for tc in cases:
+            with self.subTest(name=tc.name):
+                user = UserMainRequestorFactory()
+                character = CharacterFactory(user=user)
+                CharacterOnlineStatusFactory(
+                    character=character,
+                    last_login=tc.last_login,
+                    last_logout=tc.last_logout,
+                )
+
+                # when
+                got = tasks._is_user_active(user, threshold_date)
+
+                # then
+                self.assertEqual(got, tc.want)

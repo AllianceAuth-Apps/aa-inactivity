@@ -11,7 +11,7 @@ from memberaudit.models import Character
 
 from django.contrib.auth.models import User
 from django.core.cache import cache
-from django.db.models import Max, Q
+from django.db.models import Case, F, Max, Q, QuerySet, Value, When
 from django.utils.timezone import now
 from django.utils.translation import gettext_lazy as _
 
@@ -70,15 +70,7 @@ def check_inactivity_for_user(user_pk: int):
     )
     for config in InactivityPingConfig.objects.relevant_for_user(user):
         threshold_date = today - dt.timedelta(days=config.days)
-        threshold_datetime = dt.datetime.combine(
-            date=threshold_date, time=dt.datetime.min.time(), tzinfo=dt.timezone.utc
-        )
-        characters = Character.objects.owned_by_user(user)
-
-        is_active = characters.filter(
-            Q(online_status__last_login__gt=threshold_datetime)
-            | Q(online_status__last_logout__gt=threshold_datetime),
-        ).exists()
+        is_active = _is_user_active(user=user, threshold_date=threshold_date)
         if is_active:
             InactivityPing.objects.filter(user__pk=user_pk, config=config).delete()
 
@@ -86,7 +78,10 @@ def check_inactivity_for_user(user_pk: int):
         was_pinged = InactivityPing.objects.filter(
             user__pk=user_pk, config=config
         ).exists()
+
+        characters: QuerySet[Character] = Character.objects.owned_by_user(user)
         is_registered = characters.exists()
+
         if not is_active and is_registered and not was_pinged and not is_excused:
             last_login_at = characters.aggregate(Max("online_status__last_login")).get(
                 "online_status__last_login__max"
@@ -99,6 +94,35 @@ def check_inactivity_for_user(user_pk: int):
                 },
                 priority=INACTIVITY_TASKS_DEFAULT_PRIORITY,
             )
+
+
+def _is_user_active(user: User, threshold_date: dt.date) -> bool:
+    """Report whether a user is active."""
+    threshold_datetime = dt.datetime.combine(
+        date=threshold_date, time=dt.datetime.min.time(), tzinfo=dt.timezone.utc
+    )
+    characters: QuerySet[Character] = Character.objects.owned_by_user(user)
+    annotated = characters.annotate(
+        is_active=Case(
+            When(
+                Q(online_status__last_login__gt=threshold_datetime)
+                | Q(online_status__last_logout__gt=threshold_datetime),
+                then=Value(True),
+            ),
+            When(
+                Q(online_status__last_login__isnull=False)
+                & Q(online_status__last_logout__lt=F("online_status__last_login")),
+                then=Value(True),
+            ),
+            When(
+                Q(online_status__last_login__isnull=False)
+                & Q(online_status__last_logout__isnull=True),
+                then=Value(True),
+            ),
+            default=Value(False),
+        )
+    )
+    return annotated.filter(is_active=True).exists()
 
 
 @shared_task
