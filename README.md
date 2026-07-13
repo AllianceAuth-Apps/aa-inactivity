@@ -1,12 +1,13 @@
 # AA Inactivity
 
-This is a player activity monitoring plugin app for [Alliance Auth](https://gitlab.com/allianceauth/allianceauth) (AA).
+An app for monitoring game activity of members with Member Audit and Alliance Auth.
 
 [![release](https://img.shields.io/pypi/v/aa-inactivity?label=release)](https://pypi.org/project/aa-inactivity/)
 [![python](https://img.shields.io/pypi/pyversions/aa-inactivity)](https://pypi.org/project/aa-inactivity/)
 [![django](https://img.shields.io/pypi/djversions/aa-inactivity?label=django)](https://pypi.org/project/aa-inactivity/)
-[![pipeline](https://gitlab.com/eclipse-expeditions/aa-inactivity/badges/master/pipeline.svg)](https://gitlab.com/eclipse-expeditions/aa-inactivity/-/pipelines)
-[![license](https://img.shields.io/badge/license-GNU%20GPLv3%20-green)](https://gitlab.com/eclipse-expeditions/aa-inactivity/-/blob/master/LICENSE)
+[![CI/CD Pipeline](https://github.com/AllianceAuth-Apps/aa-inactivity/actions/workflows/ci-cd.yaml/badge.svg)](https://github.com/AllianceAuth-Apps/aa-inactivity/actions/workflows/ci-cd.yaml)
+[![codecov](https://codecov.io/github/AllianceAuth-Apps/aa-inactivity/graph/badge.svg?token=Ul05hiVwxK)](https://codecov.io/github/AllianceAuth-Apps/aa-inactivity)
+[![license](https://img.shields.io/badge/license-GNU%20GPLv3%20-green)](https://github.com/AllianceAuth-Apps/aa-inactivity#GPL-3.0-1-ov-file)
 [![pre-commit](https://img.shields.io/badge/pre--commit-enabled-brightgreen?logo=pre-commit&logoColor=white)](https://github.com/pre-commit/pre-commit)
 [![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
 [![chat](https://img.shields.io/discord/790364535294132234)](https://discord.gg/zmh52wnfvM)
@@ -48,7 +49,7 @@ A manager looking through the list of currently inactive and notified users:
 
 ### Step 0 - Requirements
 
-This app needs [Member Audit](https://gitlab.com/ErikKalkoken/aa-memberaudit) to function. Please make sure it is installed before continuing.
+This app needs [Member Audit](https://github.com/AllianceAuth-Apps/aa-memberaudit) to function. Please make sure it is installed before continuing.
 
 ### Step 1 - Install the Package
 
