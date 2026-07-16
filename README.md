@@ -29,7 +29,8 @@ An app for monitoring game activity of members with Member Audit and Alliance Au
 - Define through policies after how many days a user of absence a user is considered inactive
 - Fetching the last login dates from Member Audit to determine how long a user has been inactive
 
-Users are notified on Alliance Auth. If you want those notifications to be forwarded as DM on Discord, please check out this app: [Discord Notify](https://gitlab.com/ErikKalkoken/aa-discordnotify).
+> [!TIP]
+> Users are notified on Alliance Auth. If you want those notifications to be forwarded as DM on Discord, please check out this app: [Discord Notify](https://github.com/AllianceAuth-Apps/aa-discordnotify).
 
 ## Screenshots
 
