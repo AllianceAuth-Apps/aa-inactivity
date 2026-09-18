@@ -18,6 +18,7 @@ An app for monitoring game activity of members with Member Audit and Alliance Au
 - [Screenshots](#screenshots)
 - [Installation](#installation)
 - [Permissions](#permissions)
+- [Settings](#settings)
 
 ## Features
 
@@ -90,3 +91,10 @@ Name | Purpose | Code
 -- | -- | --
 general - Can access this app | Enabling the app for a user. This permission should be enabled for everyone who is allowed to use the app | `basic_access`
 general - Can manage leave of absence requests | Allows a user to approve/deny loa requests. | `manage_leave`
+
+## Settings
+
+Name | Description | Default
+-- | -- | --
+`INACTIVITY_NOTIFY_USER` | Whether inactive users receive a direct in-app notification. Disable this to stop users from being tipped off that they have been detected as inactive, e.g. to prevent them from logging in solely to dodge detection. | `True`
+`INACTIVITY_TASKS_DEFAULT_PRIORITY` | Default priority for all tasks. | `6`
