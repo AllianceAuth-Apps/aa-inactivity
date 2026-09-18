@@ -145,7 +145,9 @@ class TestCheckInactivityForUser(NoSocketsTestCase):
         # given
         user = UserMainRequestorFactory()
         character = CharacterFactory(user=user)
-        last_login = now() - dt.timedelta(days=5)
+        last_login = (now() - dt.timedelta(days=5)).replace(
+            hour=12, minute=0, second=0, microsecond=0
+        )
         CharacterOnlineStatusFactory(
             character=character,
             last_login=last_login,
@@ -163,7 +165,9 @@ class TestCheckInactivityForUser(NoSocketsTestCase):
         # given
         user = UserMainRequestorFactory()
         character = CharacterFactory(user=user)
-        last_login = now() - dt.timedelta(days=1)
+        last_login = (now() - dt.timedelta(days=1)).replace(
+            hour=12, minute=0, second=0, microsecond=0
+        )
         CharacterOnlineStatusFactory(
             character=character,
             last_login=last_login,
@@ -194,7 +198,9 @@ class TestCheckInactivityForUser(NoSocketsTestCase):
         # given
         user = UserMainRequestorFactory()
         character = CharacterFactory(user=user)
-        last_login = now() - dt.timedelta(days=4)
+        last_login = (now() - dt.timedelta(days=4)).replace(
+            hour=12, minute=0, second=0, microsecond=0
+        )
         CharacterOnlineStatusFactory(
             character=character,
             last_login=last_login,
@@ -218,7 +224,9 @@ class TestCheckInactivityForUser(NoSocketsTestCase):
         # given
         user = UserMainRequestorFactory()
         character = CharacterFactory(user=user)
-        last_login = now() - dt.timedelta(days=4)
+        last_login = (now() - dt.timedelta(days=4)).replace(
+            hour=12, minute=0, second=0, microsecond=0
+        )
         CharacterOnlineStatusFactory(
             character=character,
             last_login=last_login,
@@ -237,7 +245,9 @@ class TestCheckInactivityForUser(NoSocketsTestCase):
         # given
         user = UserMainRequestorFactory()
         character = CharacterFactory(user=user)
-        last_login = now() - dt.timedelta(days=4)
+        last_login = (now() - dt.timedelta(days=4)).replace(
+            hour=12, minute=0, second=0, microsecond=0
+        )
         CharacterOnlineStatusFactory(
             character=character,
             last_login=last_login,
@@ -261,7 +271,9 @@ class TestCheckInactivityForUser(NoSocketsTestCase):
         # given
         user = UserMainRequestorFactory()
         character = CharacterFactory(user=user)
-        last_login = now() - dt.timedelta(days=4)
+        last_login = (now() - dt.timedelta(days=4)).replace(
+            hour=12, minute=0, second=0, microsecond=0
+        )
         CharacterOnlineStatusFactory(
             character=character,
             last_login=last_login,
