@@ -116,6 +116,28 @@ class TestSendInactivityPing(NoSocketsTestCase):
         self.assertEqual(args[0], user)
         self.assertFalse(mock_send_message_to_webhook.called)
 
+    @patch(TASKS_PATH + ".INACTIVITY_NOTIFY_USER", False)
+    def test_should_not_notify_user_when_disabled_by_settings(
+        self, mock_notify_user, mock_send_message_to_webhook
+    ):
+        # given
+        config = InactivityPingConfigFactory()
+        user = UserMainRequestorFactory()
+        WebhookFactory(
+            ping_configs=[config],
+            notification_types=[Webhook.NotificationType.INACTIVE_USER],
+        )
+
+        # when
+        tasks.send_inactivity_ping(user_pk=user.pk, config_pk=config.pk)
+
+        # then
+        self.assertFalse(mock_notify_user.called)
+        self.assertTrue(mock_send_message_to_webhook.called)
+        self.assertTrue(
+            InactivityPing.objects.filter(user=user, config=config).exists()
+        )
+
 
 @patch(TASKS_PATH + ".send_inactivity_ping", spec=True)
 class TestCheckInactivityForUser(NoSocketsTestCase):
